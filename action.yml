@@ -65,6 +65,12 @@ runs:
         fi
       shell: bash
 
+    - name: Fetch README.md from main branch
+      run: |
+        git fetch origin main:main
+        git show main:README.md > README.md
+      shell: bash
+
     - name: Get OG Image
       run: |
         chmod +x ${{ github.action_path }}/generate-images.sh

@@ -32,7 +32,17 @@ async function run() {
 
         // Read README.md
         const readmePath = path.join(process.env.GITHUB_WORKSPACE, 'README.md');
-        const readmeContent = fs.readFileSync(readmePath, 'utf8');
+        let readmeContent;
+        try {
+            readmeContent = fs.readFileSync(readmePath, 'utf8');
+            if (!readmeContent.trim()) {
+                core.warning('README.md is empty, using default content');
+                readmeContent = `# ${repoData.data.name}\n\n${repoData.data.description || 'No description provided.'}`;
+            }
+        } catch (error) {
+            core.warning('README.md not found or cannot be read, using default content');
+            readmeContent = `# ${repoData.data.name}\n\n${repoData.data.description || 'No description provided.'}`;
+        }
         const htmlContent = marked(readmeContent);
 
         // Read template
