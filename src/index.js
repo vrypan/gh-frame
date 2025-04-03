@@ -15,11 +15,28 @@ async function run() {
         // Get repository information
         const { owner, repo } = context.repo;
         
-        // Get repository details for the title
-        const { data: repoData } = await octokit.rest.repos.get({
-            owner,
-            repo
-        });
+        // Get repository and owner details
+        const [repoData, userData] = await Promise.all([
+            octokit.rest.repos.get({
+                owner,
+                repo
+            }),
+            octokit.rest.users.getByUsername({
+                username: owner
+            })
+        ]);
+
+        // Create a simple OG image URL with repository info
+        const title = encodeURIComponent(repoData.data.name);
+        const description = repoData.data.description ? 
+            encodeURIComponent(repoData.data.description.slice(0, 100)) : '';
+        const username = encodeURIComponent(`@${userData.data.login}`);
+        
+        // Create a 1200x800 image (3:2 ratio) with text
+        const ogImageUrl = `https://placehold.co/1200x800/f5f0ec/222222/png?text=${title}%0A${description}%0A${username}`;
+        
+        // Create a 200x200 splash image
+        const splashImageUrl = `https://placehold.co/200x200/f5f0ec/222222/png?text=${title}`;
 
         // Read README.md
         const readmePath = path.join(process.env.GITHUB_WORKSPACE, 'README.md');
@@ -38,9 +55,12 @@ async function run() {
 
         // Generate final HTML
         const finalHtml = template({
-            title: repoData.name,
+            title: repoData.data.name,
+            description: repoData.data.description || '',
             content: htmlContent,
-            currentUrl: siteUrl
+            currentUrl: siteUrl,
+            ogImageUrl: ogImageUrl,
+            splashImageUrl: splashImageUrl
         });
 
         // Create or update gh-frame branch

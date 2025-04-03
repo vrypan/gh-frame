@@ -5,7 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}}</title>
     <link rel="stylesheet" href="styles.css">
-    <meta name="fc:frame" content='{"version":"next","imageUrl":"https://placehold.co/1200x800/f5f0ec/222222/png?text={{title}}","button":{"title":"View Documentation","action":{"type":"launch_frame","url":"{{currentUrl}}","name":"{{title}}"}}}' />
+    <meta property="og:title" content="{{title}}">
+    <meta property="og:description" content="{{description}}">
+    <meta property="og:image" content="{{ogImageUrl}}">
+    <meta name="fc:frame" content='{"version":"next","imageUrl":"{{ogImageUrl}}","button":{"title":"View Documentation","action":{"type":"launch_frame","url":"{{currentUrl}}","name":"{{title}}","splashImageUrl":"{{splashImageUrl}}","splashBackgroundColor":"#f5f0ec"}}}' />
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk'
+        
+        // Call ready when the page is loaded
+        window.addEventListener('load', async () => {
+            try {
+                await sdk.actions.ready();
+                console.log('Frame is ready');
+            } catch (e) {
+                console.error('Failed to initialize frame:', e);
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="container">
