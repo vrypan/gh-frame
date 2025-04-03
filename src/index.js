@@ -104,7 +104,8 @@ async function run() {
             owner,
             repo,
             ref: `heads/${branchName}`,
-            sha: commit.sha
+            sha: commit.sha,
+            force: true
         });
 
         core.info('Static page updated successfully!');
