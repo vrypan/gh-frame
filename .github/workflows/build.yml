@@ -19,6 +19,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install sharp for linux-x64
+        run: npm install --os=linux --cpu=x64 sharp
+
       - name: Build Static Page
         uses: ./
         with:

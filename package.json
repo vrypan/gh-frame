@@ -5,14 +5,17 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npx @vercel/ncc build src/index.js -o dist && cp src/*.html src/*.css dist/",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "npm install --os=linux --cpu=x64 sharp"
   },
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^6.0.0",
     "axios": "^1.6.8",
     "handlebars": "^4.7.8",
-    "marked": "^9.1.0",
+    "marked": "^9.1.0"
+  },
+  "optionalDependencies": {
     "sharp": "^0.33.2"
   },
   "devDependencies": {
