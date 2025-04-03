@@ -63,6 +63,25 @@ async function run() {
             }, 200, 200)
         ]);
 
+        // Generate the site URL
+        const siteUrl = cname ? `https://${cname}` : `https://${owner}.github.io/${repo}`;
+
+        // Create blobs for the images
+        const [ogImageBlob, splashImageBlob] = await Promise.all([
+            octokit.rest.git.createBlob({
+                owner,
+                repo,
+                content: ogImageBuffer.toString('base64'),
+                encoding: 'base64'
+            }),
+            octokit.rest.git.createBlob({
+                owner,
+                repo,
+                content: splashImageBuffer.toString('base64'),
+                encoding: 'base64'
+            })
+        ]);
+
         // Read README.md
         const readmePath = path.join(process.env.GITHUB_WORKSPACE, 'README.md');
         const readmeContent = fs.readFileSync(readmePath, 'utf8');
@@ -75,17 +94,14 @@ async function run() {
         const templateContent = fs.readFileSync(templatePath, 'utf8');
         const template = Handlebars.compile(templateContent);
 
-        // Generate the site URL
-        const siteUrl = cname ? `https://${cname}` : `https://${owner}.github.io/${repo}`;
-
-        // Generate final HTML
+        // Generate final HTML with image URLs
         const finalHtml = template({
             title: repoData.data.name,
             description: repoData.data.description || '',
             content: htmlContent,
             currentUrl: siteUrl,
-            ogImageUrl: ogImageBuffer.toString('base64'),
-            splashImageUrl: splashImageBuffer.toString('base64')
+            ogImageUrl: `${siteUrl}/og-image.png`,
+            splashImageUrl: `${siteUrl}/splash-image.png`
         });
 
         // Create or update gh-frame branch
@@ -120,22 +136,44 @@ async function run() {
             }
         }
 
-        // Create or update files
+        // Create tree items including images
         const files = {
-            'index.html': finalHtml,
-            'styles.css': fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8')
+            'index.html': {
+                content: finalHtml,
+                type: 'blob',
+                mode: '100644'
+            },
+            'styles.css': {
+                content: fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8'),
+                type: 'blob',
+                mode: '100644'
+            },
+            'og-image.png': {
+                sha: ogImageBlob.data.sha,
+                type: 'blob',
+                mode: '100644'
+            },
+            'splash-image.png': {
+                sha: splashImageBlob.data.sha,
+                type: 'blob',
+                mode: '100644'
+            }
         };
 
         if (cname) {
-            files['CNAME'] = cname;
+            files['CNAME'] = {
+                content: cname,
+                type: 'blob',
+                mode: '100644'
+            };
         }
 
-        // Create a tree with the new files
-        const treeItems = Object.entries(files).map(([path, content]) => ({
+        // Create tree items
+        const treeItems = Object.entries(files).map(([path, file]) => ({
             path,
-            mode: '100644',
-            type: 'blob',
-            content
+            mode: file.mode,
+            type: file.type,
+            ...(file.sha ? { sha: file.sha } : { content: file.content })
         }));
 
         const { data: tree } = await octokit.rest.git.createTree({
@@ -149,7 +187,7 @@ async function run() {
         const { data: commit } = await octokit.rest.git.createCommit({
             owner,
             repo,
-            message: 'Update static page',
+            message: 'Update static page with generated images',
             tree: tree.sha,
             parents: branchRef ? [branchRef.object.sha] : []
         });
