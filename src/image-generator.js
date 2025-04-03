@@ -1,84 +1,120 @@
-const sharp = require('sharp');
 const axios = require('axios');
+const svg2img = require('svg2img');
+const { promisify } = require('util');
 
-async function fetchImageBuffer(url) {
+const svg2imgAsync = promisify(svg2img);
+
+async function fetchBase64Image(url) {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
-    return Buffer.from(response.data, 'binary');
+    return Buffer.from(response.data).toString('base64');
+}
+
+async function generateSVG(data, isOG = true) {
+    const avatarBase64 = await fetchBase64Image(data.avatarUrl);
+    
+    if (isOG) {
+        return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Background -->
+    <rect width="1200" height="800" fill="white"/>
+    
+    <!-- Border -->
+    <rect x="20" y="20" width="1160" height="760" 
+          fill="none" stroke="#ffe2ec" stroke-width="40"/>
+    
+    <!-- Avatar -->
+    <defs>
+        <clipPath id="avatarClip">
+            <circle cx="100" cy="100" r="40"/>
+        </clipPath>
+    </defs>
+    <image x="60" y="60" width="80" height="80"
+           clip-path="url(#avatarClip)"
+           xlink:href="data:image/png;base64,${avatarBase64}"/>
+    
+    <!-- Title -->
+    <text x="164" y="100" 
+          font-family="Arial, sans-serif" 
+          font-size="64px" 
+          font-weight="bold" 
+          fill="#24292f">${escapeXml(data.title)}</text>
+    
+    <!-- Description -->
+    <text x="60" y="200" 
+          font-family="Arial, sans-serif" 
+          font-size="32px" 
+          fill="#57606a">${escapeXml(data.description || '')}</text>
+    
+    <!-- Username -->
+    <text x="60" y="250" 
+          font-family="Arial, sans-serif" 
+          font-size="32px" 
+          fill="#57606a">${escapeXml(data.username)}</text>
+</svg>`;
+    } else {
+        return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Background -->
+    <rect width="200" height="200" fill="white"/>
+    
+    <!-- Border -->
+    <rect x="5" y="5" width="190" height="190" 
+          fill="none" stroke="#ffe2ec" stroke-width="10"/>
+    
+    <!-- Avatar -->
+    <defs>
+        <clipPath id="avatarClip">
+            <circle cx="100" cy="70" r="30"/>
+        </clipPath>
+    </defs>
+    <image x="70" y="40" width="60" height="60"
+           clip-path="url(#avatarClip)"
+           xlink:href="data:image/png;base64,${avatarBase64}"/>
+    
+    <!-- Title -->
+    <text x="100" y="140" 
+          font-family="Arial, sans-serif" 
+          font-size="20px" 
+          font-weight="bold"
+          text-anchor="middle"
+          fill="#24292f">${escapeXml(data.title)}</text>
+</svg>`;
+    }
 }
 
 async function generateOGImage(data) {
-    const width = 1200;
-    const height = 800;
-    
-    // Create a white background with pink border
-    const svg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="${width}" height="${height}" fill="white"/>
-        <rect x="20" y="20" width="${width-40}" height="${height-40}" 
-              fill="none" stroke="#ffe2ec" stroke-width="40"/>
-        <text x="164" y="100" font-family="Arial" font-size="64px" font-weight="bold" fill="#24292f">${data.title}</text>
-        <text x="60" y="200" font-family="Arial" font-size="32px" fill="#57606a">${data.description || ''}</text>
-        <text x="60" y="250" font-family="Arial" font-size="32px" fill="#57606a">${data.username}</text>
-    </svg>`;
-
-    // Create the base image
-    const baseImage = Buffer.from(svg);
-
-    // Fetch and process the avatar
-    const avatarBuffer = await fetchImageBuffer(data.avatarUrl);
-    const avatar = await sharp(avatarBuffer)
-        .resize(80, 80)
-        .toBuffer();
-
-    // Compose the final image
-    return sharp(baseImage)
-        .composite([
-            {
-                input: avatar,
-                top: 60,
-                left: 60
-            }
-        ])
-        .toBuffer();
+    const svg = await generateSVG(data, true);
+    return svg2imgAsync(svg, {
+        format: 'png',
+        width: 1200,
+        height: 800
+    });
 }
 
 async function generateSplashImage(data) {
-    const width = 200;
-    const height = 200;
-    
-    // Create a white background with pink border
-    const svg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="${width}" height="${height}" fill="white"/>
-        <rect x="5" y="5" width="${width-10}" height="${height-10}" 
-              fill="none" stroke="#ffe2ec" stroke-width="10"/>
-        <text x="${width/2}" y="140" 
-              font-family="Arial" font-size="20px" font-weight="bold" 
-              text-anchor="middle" fill="#24292f">${data.title}</text>
-    </svg>`;
+    const svg = await generateSVG(data, false);
+    return svg2imgAsync(svg, {
+        format: 'png',
+        width: 200,
+        height: 200
+    });
+}
 
-    // Create the base image
-    const baseImage = Buffer.from(svg);
-
-    // Fetch and process the avatar
-    const avatarBuffer = await fetchImageBuffer(data.avatarUrl);
-    const avatar = await sharp(avatarBuffer)
-        .resize(60, 60)
-        .toBuffer();
-
-    // Compose the final image
-    return sharp(baseImage)
-        .composite([
-            {
-                input: avatar,
-                top: 40,
-                left: 70
-            }
-        ])
-        .toBuffer();
+// Helper function to escape XML special characters
+function escapeXml(unsafe) {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
 }
 
 module.exports = {
     generateOGImage,
-    generateSplashImage
+    generateSplashImage,
+    generateSVG
 }; 
