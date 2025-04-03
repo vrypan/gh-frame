@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 const Handlebars = require('handlebars');
-const puppeteer = require('puppeteer-core');
+const { generateOGImage, generateSplashImage } = require('./image-generator');
 
 // Function to find Chrome executable
 async function findChrome() {
@@ -98,11 +98,11 @@ async function run() {
         };
 
         const [ogImageBuffer, splashImageBuffer] = await Promise.all([
-            generateImage('og-template.html', imageData, 1200, 800),
-            generateImage('splash-template.html', {
+            generateOGImage(imageData),
+            generateSplashImage({
                 title: repoData.data.name,
                 avatarUrl: userData.data.avatar_url
-            }, 200, 200)
+            })
         ]);
 
         // Generate the site URL
