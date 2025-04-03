@@ -73,7 +73,9 @@ async function run() {
             content: htmlContent,
             ogImageUrl: `${siteUrl}/og-image.png`,
             splashImageUrl: `${siteUrl}/splash-image.png`,
-            currentUrl: siteUrl
+            currentUrl: siteUrl,
+            owner: owner,
+            repo: repo
         });
 
         // Write files to disk
