@@ -42643,6 +42643,7 @@ async function run() {
     try {
         const cname = core.getInput('cname');
         const token = core.getInput('token') || process.env.GITHUB_TOKEN;
+        const branchName = core.getInput('branch_name') || 'gh-frame';
         const octokit = github.getOctokit(token);
         const context = github.context;
 
