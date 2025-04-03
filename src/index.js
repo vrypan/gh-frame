@@ -108,6 +108,37 @@ async function run() {
             force: true
         });
 
+        // Configure GitHub Pages
+        try {
+            await octokit.rest.repos.updateBranchProtection({
+                owner,
+                repo,
+                branch: branchName,
+                required_status_checks: null,
+                enforce_admins: false,
+                restrictions: null,
+                allow_force_pushes: true,
+                allow_deletions: false,
+                required_pull_request_reviews: null
+            });
+        } catch (error) {
+            core.warning('Could not configure branch protection: ' + error.message);
+        }
+
+        try {
+            await octokit.rest.repos.updateInformationAboutPagesSite({
+                owner,
+                repo,
+                source: {
+                    branch: branchName,
+                    path: '/'
+                }
+            });
+            core.info(`GitHub Pages configured! Site will be available at https://${owner}.github.io/${repo}`);
+        } catch (error) {
+            core.warning('Could not configure GitHub Pages: ' + error.message);
+        }
+
         core.info('Static page updated successfully!');
 
     } catch (error) {
