@@ -51,8 +51,8 @@ async function generateImage(template, data, width, height) {
             waitUntil: ['networkidle0', 'load']
         });
 
-        // Wait a bit to ensure all fonts are loaded
-        await page.waitForTimeout(100);
+        // Use a promise to wait instead of waitForTimeout
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Take screenshot with specific settings
         const imageBuffer = await page.screenshot({
