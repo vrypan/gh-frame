@@ -4,6 +4,27 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 const Handlebars = require('handlebars');
+const puppeteer = require('puppeteer');
+
+async function generateImage(template, data, width, height) {
+    const templatePath = path.join(__dirname, template);
+    const templateContent = fs.readFileSync(templatePath, 'utf8');
+    const compiledTemplate = Handlebars.compile(templateContent);
+    const html = compiledTemplate(data);
+
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+    await page.setViewport({ width, height });
+    await page.setContent(html);
+    const imageBuffer = await page.screenshot({
+        type: 'png'
+    });
+    await browser.close();
+
+    return imageBuffer;
+}
 
 async function run() {
     try {
@@ -26,17 +47,21 @@ async function run() {
             })
         ]);
 
-        // Create a simple OG image URL with repository info
-        const title = encodeURIComponent(repoData.data.name);
-        const description = repoData.data.description ? 
-            encodeURIComponent(repoData.data.description.slice(0, 100)) : '';
-        const username = encodeURIComponent(`@${userData.data.login}`);
-        
-        // Create a 1200x800 image (3:2 ratio) with text
-        const ogImageUrl = `https://placehold.co/1200x800/f5f0ec/222222/png?text=${title}%0A${description}%0A${username}`;
-        
-        // Create a 200x200 splash image
-        const splashImageUrl = `https://placehold.co/200x200/f5f0ec/222222/png?text=${title}`;
+        // Generate OG image and splash image
+        const imageData = {
+            title: repoData.data.name,
+            description: repoData.data.description,
+            username: `@${userData.data.login}`,
+            avatarUrl: userData.data.avatar_url
+        };
+
+        const [ogImageBuffer, splashImageBuffer] = await Promise.all([
+            generateImage('og-template.html', imageData, 1200, 800),
+            generateImage('splash-template.html', {
+                title: repoData.data.name,
+                avatarUrl: userData.data.avatar_url
+            }, 200, 200)
+        ]);
 
         // Read README.md
         const readmePath = path.join(process.env.GITHUB_WORKSPACE, 'README.md');
@@ -59,8 +84,8 @@ async function run() {
             description: repoData.data.description || '',
             content: htmlContent,
             currentUrl: siteUrl,
-            ogImageUrl: ogImageUrl,
-            splashImageUrl: splashImageUrl
+            ogImageUrl: ogImageBuffer.toString('base64'),
+            splashImageUrl: splashImageBuffer.toString('base64')
         });
 
         // Create or update gh-frame branch
