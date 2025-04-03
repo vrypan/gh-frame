@@ -1,0 +1,14 @@
+name: 'README to Static Page'
+description: 'Builds a static page from README.md and updates gh-frame branch'
+author: 'Your Name'
+inputs:
+  cname:
+    description: 'Custom domain for GitHub Pages'
+    required: false
+    default: ''
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'book'
+  color: 'blue' 

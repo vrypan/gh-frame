@@ -1,25 +1,63 @@
-# README to Static Page - Sample Repository
+# README to Static Page GitHub Action
 
-This is a sample repository demonstrating how to use the README to Static Page GitHub Action.
+This GitHub Action automatically builds a static page from your repository's README.md file and updates a `gh-frame` branch. The generated page can be served using GitHub Pages with an optional custom domain.
 
-## What This Repository Demonstrates
+## Features
 
-This repository contains:
-1. A sample README.md with various markdown features
-2. A GitHub Actions workflow that uses the README to Static Page action
-3. Configuration for GitHub Pages with a custom domain
+- Automatically converts README.md to a static HTML page
+- Updates a `gh-frame` branch with the generated content
+- Supports custom domain configuration via CNAME
+- Clean, responsive design
+- Automatic updates when README.md changes
 
-## How to Use This Sample
+## Usage
 
-1. Fork this repository
-2. Update the workflow file (`.github/workflows/build.yml`):
-   - Replace `your-username/readme-to-static-page@v1` with your action's reference
-   - Update the `cname` value with your domain (or remove it if not using a custom domain)
-3. Push changes to the main branch
-4. The action will automatically:
-   - Convert README.md to HTML
-   - Create/update the `gh-frame` branch
-   - Set up GitHub Pages with your custom domain
+### Basic Setup
+
+1. Create a workflow file (e.g., `.github/workflows/build.yml`) in your repository:
+
+```yaml
+name: Build Static Page
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build Static Page
+        uses: your-username/readme-to-static-page@v1
+```
+
+### With Custom Domain
+
+To use a custom domain, add the `cname` input:
+
+```yaml
+- name: Build Static Page
+  uses: your-username/readme-to-static-page@v1
+  with:
+    cname: 'docs.yourdomain.com'
+```
+
+## Configuration
+
+### Inputs
+
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `cname` | Custom domain for GitHub Pages | No | '' |
 
 ## GitHub Pages Setup
 
@@ -28,79 +66,36 @@ This repository contains:
 3. Set the source to the `gh-frame` branch
 4. If using a custom domain:
    - Enter your domain in the Custom domain field
-   - Configure your DNS settings
+   - Configure your DNS settings to point to GitHub Pages
    - Wait for DNS propagation
 
-## Customizing the Sample
+## Customization
 
-Feel free to:
-- Modify the README.md content
-- Update the styles by forking the main action repository
-- Add more features to the generated page
+The generated page uses a clean, responsive design. You can customize the appearance by:
 
-## Support
+1. Forking this repository
+2. Modifying the `src/styles.css` file
+3. Building and publishing your own version of the action
 
-If you encounter any issues:
-1. Check the GitHub Actions logs
-2. Review the [main repository's documentation](https://github.com/your-username/readme-to-static-page)
-3. Open an issue in the main repository
+## Development
 
-## Features
+### Building
 
-- Markdown to HTML conversion
-- Code highlighting
-- Tables
-- Lists
-- And more!
-
-## Code Example
-
-Here's a simple JavaScript example:
-
-```javascript
-function greet(name) {
-    console.log(`Hello, ${name}!`);
-}
-
-greet('World');
+```bash
+npm install
+npm run build
 ```
 
-## Table Example
+### Testing
 
-| Feature | Description |
-|---------|-------------|
-| Markdown | Converts markdown to HTML |
-| Styling | Clean, responsive design |
-| Updates | Automatic on README changes |
+```bash
+npm test
+```
 
-## Lists
+## License
 
-### Ordered List
-1. First item
-2. Second item
-3. Third item
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Unordered List
-- Item 1
-- Item 2
-- Item 3
+## Contributing
 
-## Blockquotes
-
-> This is a blockquote
-> It can span multiple lines
-
-## Links
-
-- [GitHub](https://github.com)
-- [Markdown Guide](https://www.markdownguide.org)
-
-## Images
-
-![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
-
-## Task Lists
-
-- [x] Create README
-- [x] Add examples
-- [ ] Add more features 
+Contributions are welcome! Please feel free to submit a Pull Request. 
