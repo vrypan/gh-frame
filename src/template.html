@@ -11,9 +11,7 @@
     <meta name="fc:frame" content='{"version":"next","imageUrl":"{{ogImageUrl}}","button":{"title":"View Documentation","action":{"type":"launch_frame","url":"{{currentUrl}}","name":"{{title}}","splashImageUrl":"{{splashImageUrl}}","splashBackgroundColor":"#f5f0ec"}}}' />
     <script type="module">
         import { sdk } from 'https://esm.sh/@farcaster/frame-sdk'
-        async function inFrameContext() {
-  const links = document.querySelectorAll("a[href^='http']");
-  
+        
         // Call ready when the page is loaded
         window.addEventListener('load', async () => {
             try {

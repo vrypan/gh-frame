@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# macOS
+.DS_Store
+
+# Generated files
+og-image.png
+splash-image.png
+
+# Test files
+test-page/
+test-images.js
+test-preview.html 
