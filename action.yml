@@ -9,26 +9,22 @@ branding:
 runs:
   using: 'composite'
   steps:
-    - name: Install ImageMagick
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y imagemagick
+        sudo apt-get install -y curl
       shell: bash
-
-    - name: Run Action
-      run: node ${{ github.action_path }}/dist/index.js
+    
+    - name: Get OG Image
+      run: |
+        chmod +x ${{ github.action_path }}/generate-images.sh
+        ${{ github.action_path }}/generate-images.sh
       shell: bash
       env:
-        INPUT_TOKEN: ${{ inputs.token }}
-        INPUT_CNAME: ${{ inputs.cname }}
         GITHUB_TOKEN: ${{ inputs.token }}
 
 inputs:
   token:
     description: 'GitHub token for repository access'
     required: true
-    default: ''
-  cname:
-    description: 'Custom domain for GitHub Pages (optional)'
-    required: false
     default: ''

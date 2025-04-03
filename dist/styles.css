@@ -17,14 +17,14 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 0.5rem;
 }
 
 main {
     background-color: var(--background-color);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: 2rem;
+    padding: 1rem;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -81,4 +81,68 @@ footer {
     text-align: center;
     color: #6a737d;
     font-size: 0.9em;
-} 
+}
+
+.repo-link {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.github-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #24292e;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.github-button:hover {
+    background-color: #1a1f23;
+    text-decoration: none;
+}
+
+.github-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 0.25rem;
+    }
+    
+    main {
+        padding: 0.75rem;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+
+    /* Hide bottom button on mobile */
+    .mobile-bottom {
+        display: none;
+    }
+
+    /* Style top button for mobile */
+    .mobile-top {
+        margin: 0 0 1rem 0;
+    }
+
+    .mobile-top .github-button {
+        width: 90%;
+        justify-content: center;
+        border-radius: 6px;
+    }
+}
+
+/* Hide top button on desktop */
+@media (min-width: 601px) {
+    .mobile-top {
+        display: none;
+    }
+}
