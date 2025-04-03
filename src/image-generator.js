@@ -73,18 +73,36 @@ async function svgToPng(svg) {
 
     try {
         await fs.writeFile(svgPath, svg);
-        await execFileAsync('convert', [
-            svgPath,
-            '-background', 'white',
-            '-format', 'png',
-            pngPath
-        ]);
+        
+        // Check if ImageMagick is installed
+        try {
+            await execFileAsync('which', ['convert']);
+        } catch (error) {
+            throw new Error('ImageMagick (convert) is not installed. Please install ImageMagick first.');
+        }
+
+        // Try to convert
+        try {
+            await execFileAsync('convert', [
+                svgPath,
+                '-background', 'white',
+                '-format', 'png',
+                pngPath
+            ]);
+        } catch (error) {
+            throw new Error(`ImageMagick conversion failed: ${error.message}`);
+        }
+
         const pngBuffer = await fs.readFile(pngPath);
-        await fs.rm(tempDir, { recursive: true });
         return pngBuffer;
     } catch (error) {
-        await fs.rm(tempDir, { recursive: true }).catch(() => {});
+        console.error('Error in svgToPng:', error);
         throw error;
+    } finally {
+        // Clean up temp files
+        await fs.rm(tempDir, { recursive: true }).catch(e => 
+            console.error('Failed to clean up temp directory:', e)
+        );
     }
 }
 
