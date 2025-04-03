@@ -23,7 +23,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
         }
         .header {
             display: flex;
@@ -47,8 +47,8 @@
             font-size: 32px;
             color: #57606a;
             margin: 0;
-            text-align: center;
-            max-width: 800px;
+            text-align: left;
+            max-width: 900px;
             line-height: 1.4;
         }
         .author {
@@ -74,9 +74,10 @@
             <h1 class="title">{{title}}</h1>
         </div>
         {{#if description}}
-        <p class="description">{{description}}</p>
+        <p class="description">{{description}} &mdash;{{username}}</p>
+        {{else}}
+        <p class="description">&mdash;{{username}}</p>
         {{/if}}
-        <p class="author">{{username}}</p>
     </div>
     <div class="border"></div>
 </body>
