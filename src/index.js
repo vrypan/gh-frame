@@ -36,15 +36,36 @@ async function generateImage(template, data, width, height) {
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     
-    const page = await browser.newPage();
-    await page.setViewport({ width, height });
-    await page.setContent(html);
-    const imageBuffer = await page.screenshot({
-        type: 'png'
-    });
-    await browser.close();
+    try {
+        const page = await browser.newPage();
+        
+        // Set viewport before content
+        await page.setViewport({
+            width,
+            height,
+            deviceScaleFactor: 1
+        });
 
-    return imageBuffer;
+        // Set content and wait for network idle
+        await page.setContent(html, {
+            waitUntil: ['networkidle0', 'load']
+        });
+
+        // Wait a bit to ensure all fonts are loaded
+        await page.waitForTimeout(100);
+
+        // Take screenshot with specific settings
+        const imageBuffer = await page.screenshot({
+            type: 'png',
+            fullPage: false,
+            omitBackground: false,
+            encoding: 'binary'
+        });
+
+        return imageBuffer;
+    } finally {
+        await browser.close();
+    }
 }
 
 async function run() {
