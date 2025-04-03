@@ -12,13 +12,64 @@ runs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl
+        sudo apt-get install -y curl git nodejs npm
       shell: bash
     
+    - name: Install Node.js dependencies
+      run: |
+        cd ${{ github.action_path }}
+        npm install
+        npm run build
+      shell: bash
+
     - name: Get OG Image
       run: |
         chmod +x ${{ github.action_path }}/generate-images.sh
         ${{ github.action_path }}/generate-images.sh
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        CNAME: ${{ inputs.cname }}
+        BRANCH_NAME: ${{ inputs.branch_name }}
+
+    - name: Generate static page
+      run: |
+        node ${{ github.action_path }}/dist/index.js
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        CNAME: ${{ inputs.cname }}
+        BRANCH_NAME: ${{ inputs.branch_name }}
+
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      shell: bash
+
+    - name: Create or switch to gh-frame branch
+      run: |
+        if git show-ref --verify --quiet refs/heads/gh-frame; then
+          git checkout gh-frame
+        else
+          git checkout -b gh-frame
+        fi
+      shell: bash
+
+    - name: Commit generated files
+      run: |
+        git add og-image.png splash-image.png index.html styles.css
+        if [ -n "$CNAME" ]; then
+          git add CNAME
+        fi
+        git commit -m "Update static page with generated images" || exit 0
+      shell: bash
+      env:
+        CNAME: ${{ inputs.cname }}
+
+    - name: Push changes
+      run: |
+        git push origin gh-frame
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
@@ -28,3 +79,11 @@ inputs:
     description: 'GitHub token for repository access'
     required: true
     default: ''
+  cname:
+    description: 'Custom domain name for the site (e.g., docs.example.com)'
+    required: false
+    default: ''
+  branch_name:
+    description: 'Branch name to deploy the static site to'
+    required: false
+    default: 'gh-frame'
