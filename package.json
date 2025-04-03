@@ -4,7 +4,7 @@
   "description": "GitHub Action to build static page from README.md",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npx @vercel/ncc build src/index.js -o dist",
+    "build": "npx @vercel/ncc build src/index.js -o dist && cp src/*.html src/*.css dist/",
     "test": "jest"
   },
   "dependencies": {
