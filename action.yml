@@ -39,6 +39,32 @@ runs:
         npm run build
       shell: bash
 
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      shell: bash
+
+    - name: Create or switch to gh-frame branch
+      run: |
+        # Try to fetch the branch first
+        git fetch origin gh-frame || true
+        
+        # Check if branch exists locally or remotely
+        if git rev-parse --verify gh-frame >/dev/null 2>&1 || git rev-parse --verify origin/gh-frame >/dev/null 2>&1; then
+          # Branch exists, switch to it
+          git checkout gh-frame 2>/dev/null || git checkout -b gh-frame origin/gh-frame
+        else
+          # Branch doesn't exist, create it
+          git checkout --orphan gh-frame
+          git rm -rf .
+          git clean -fdx
+          echo "# GitHub Pages Branch" > README.md
+          git add README.md
+          git commit -m "Initial gh-frame branch commit"
+        fi
+      shell: bash
+
     - name: Get OG Image
       run: |
         chmod +x ${{ github.action_path }}/generate-images.sh
@@ -57,23 +83,6 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
         CNAME: ${{ inputs.cname }}
         BRANCH_NAME: ${{ inputs.branch_name }}
-
-    - name: Configure Git
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-      shell: bash
-
-    - name: Create or switch to gh-frame branch
-      run: |
-        if git show-ref --verify --quiet refs/heads/gh-frame; then
-          git checkout gh-frame
-        else
-          git checkout --orphan gh-frame
-          git reset --hard
-          git commit --allow-empty -m "Initializing gh-frame branch"
-        fi
-      shell: bash
 
     - name: Commit generated files
       run: |
@@ -99,12 +108,8 @@ runs:
       env:
         CNAME: ${{ inputs.cname }}
 
-    - name: Pull remote changes and push
+    - name: Push changes
       run: |
-        # Pull remote changes with rebase
-        git pull --rebase origin gh-frame || true
-        
-        # Push changes
         git push origin gh-frame
       shell: bash
       env:

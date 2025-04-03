@@ -50,77 +50,35 @@ async function run() {
             currentUrl: siteUrl
         });
 
-        // Create the necessary files
+        // Write files to disk
         const files = {
             'index.html': finalHtml,
             'styles.css': fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8')
         };
 
-        // Only add image files if they exist
+        // Check for downloaded images in the current directory
+        const currentDir = process.cwd();
         const imageFiles = ['og-image.png', 'splash-image.png'];
         for (const imageFile of imageFiles) {
-            const imagePath = path.join(__dirname, imageFile);
+            const imagePath = path.join(currentDir, imageFile);
             if (fs.existsSync(imagePath)) {
                 files[imageFile] = fs.readFileSync(imagePath);
+                core.info(`Found ${imageFile} in current directory`);
             } else {
                 core.warning(`Warning: ${imageFile} not found. Skipping image file.`);
             }
         }
 
-        // Create or update each file
+        // Write all files to disk
         for (const [filePath, content] of Object.entries(files)) {
-            try {
-                // Try to get the current file
-                const { data: currentFile } = await octokit.rest.repos.getContent({
-                    owner,
-                    repo,
-                    path: filePath,
-                    ref: branchName
-                });
-
-                // Update the file
-                await octokit.rest.repos.createOrUpdateFileContents({
-                    owner,
-                    repo,
-                    path: filePath,
-                    message: `Update ${filePath}`,
-                    content: Buffer.from(content).toString('base64'),
-                    sha: currentFile.sha,
-                    branch: branchName
-                });
-            } catch (error) {
-                if (error.status === 404) {
-                    // File doesn't exist, create it
-                    await octokit.rest.repos.createOrUpdateFileContents({
-                        owner,
-                        repo,
-                        path: filePath,
-                        message: `Create ${filePath}`,
-                        content: Buffer.from(content).toString('base64'),
-                        branch: branchName
-                    });
-                } else {
-                    throw error;
-                }
-            }
+            fs.writeFileSync(filePath, content);
+            core.info(`Created ${filePath}`);
         }
 
         // Create CNAME file if provided
         if (cname) {
-            try {
-                await octokit.rest.repos.createOrUpdateFileContents({
-                    owner,
-                    repo,
-                    path: 'CNAME',
-                    message: 'Create CNAME file',
-                    content: Buffer.from(cname).toString('base64'),
-                    branch: branchName
-                });
-            } catch (error) {
-                if (error.status !== 404) {
-                    throw error;
-                }
-            }
+            fs.writeFileSync('CNAME', cname);
+            core.info('Created CNAME file');
         }
 
         core.info(`\nTo complete setup (one-time step):
