@@ -38298,154 +38298,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 6163:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const axios = __nccwpck_require__(3778);
-const fs = (__nccwpck_require__(7147).promises);
-const os = __nccwpck_require__(2037);
-const path = __nccwpck_require__(1017);
-const { execFile } = __nccwpck_require__(2081);
-const { promisify } = __nccwpck_require__(3837);
-const execFileAsync = promisify(execFile);
-
-async function fetchBase64Image(url) {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    return Buffer.from(response.data).toString('base64');
-}
-
-async function generateSVG(data, isOG = true) {
-    const avatarBase64 = await fetchBase64Image(data.avatarUrl);
-    
-    if (isOG) {
-        return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <rect width="1200" height="800" fill="white"/>
-    <rect x="20" y="20" width="1160" height="760" 
-          fill="none" stroke="#ffe2ec" stroke-width="40"/>
-    <defs>
-        <clipPath id="avatarClip">
-            <circle cx="100" cy="100" r="40"/>
-        </clipPath>
-    </defs>
-    <image x="60" y="60" width="80" height="80"
-           clip-path="url(#avatarClip)"
-           xlink:href="data:image/png;base64,${avatarBase64}"/>
-    <text x="164" y="100" 
-          font-family="Arial, sans-serif" 
-          font-size="64px" 
-          font-weight="bold" 
-          fill="#24292f">${escapeXml(data.title)}</text>
-    <text x="60" y="200" 
-          font-family="Arial, sans-serif" 
-          font-size="32px" 
-          fill="#57606a">${escapeXml(data.description || '')}</text>
-    <text x="60" y="250" 
-          font-family="Arial, sans-serif" 
-          font-size="32px" 
-          fill="#57606a">${escapeXml(data.username)}</text>
-</svg>`;
-    } else {
-        return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <rect width="200" height="200" fill="white"/>
-    <rect x="5" y="5" width="190" height="190" 
-          fill="none" stroke="#ffe2ec" stroke-width="10"/>
-    <defs>
-        <clipPath id="avatarClip">
-            <circle cx="100" cy="70" r="30"/>
-        </clipPath>
-    </defs>
-    <image x="70" y="40" width="60" height="60"
-           clip-path="url(#avatarClip)"
-           xlink:href="data:image/png;base64,${avatarBase64}"/>
-    <text x="100" y="140" 
-          font-family="Arial, sans-serif" 
-          font-size="20px" 
-          font-weight="bold"
-          text-anchor="middle"
-          fill="#24292f">${escapeXml(data.title)}</text>
-</svg>`;
-    }
-}
-
-async function svgToPng(svg) {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'svg-'));
-    const svgPath = path.join(tempDir, 'input.svg');
-    const pngPath = path.join(tempDir, 'output.png');
-
-    try {
-        await fs.writeFile(svgPath, svg);
-        
-        // Check if ImageMagick is installed
-        try {
-            await execFileAsync('which', ['convert']);
-        } catch (error) {
-            throw new Error('ImageMagick (convert) is not installed. Please install ImageMagick first.');
-        }
-
-        // Try to convert
-        try {
-            await execFileAsync('convert', [
-                svgPath,
-                '-background', 'white',
-                '-format', 'png',
-                pngPath
-            ]);
-        } catch (error) {
-            throw new Error(`ImageMagick conversion failed: ${error.message}`);
-        }
-
-        const pngBuffer = await fs.readFile(pngPath);
-        return pngBuffer;
-    } catch (error) {
-        console.error('Error in svgToPng:', error);
-        throw error;
-    } finally {
-        // Clean up temp files
-        await fs.rm(tempDir, { recursive: true }).catch(e => 
-            console.error('Failed to clean up temp directory:', e)
-        );
-    }
-}
-
-async function generateOGImage(data) {
-    const svg = await generateSVG(data, true);
-    return svgToPng(svg);
-}
-
-async function generateSplashImage(data) {
-    const svg = await generateSVG(data, false);
-    return svgToPng(svg);
-}
-
-function escapeXml(unsafe) {
-    return unsafe.replace(/[<>&'"]/g, function (c) {
-        switch (c) {
-            case '<': return '&lt;';
-            case '>': return '&gt;';
-            case '&': return '&amp;';
-            case '\'': return '&apos;';
-            case '"': return '&quot;';
-        }
-    });
-}
-
-module.exports = {
-    generateOGImage,
-    generateSplashImage
-}; 
-
-/***/ }),
-
-/***/ 3778:
-/***/ ((module) => {
-
-module.exports = eval("require")("axios");
-
-
-/***/ }),
-
 /***/ 9491:
 /***/ ((module) => {
 
@@ -42786,69 +42638,6 @@ const fs = __nccwpck_require__(7147);
 const path = __nccwpck_require__(1017);
 const { marked } = __nccwpck_require__(5741);
 const Handlebars = __nccwpck_require__(7492);
-const { generateOGImage, generateSplashImage } = __nccwpck_require__(6163);
-
-// Function to find Chrome executable
-async function findChrome() {
-    // Common Chrome paths in GitHub Actions
-    const paths = [
-        '/usr/bin/google-chrome',
-        '/usr/bin/google-chrome-stable',
-        '/usr/bin/chromium',
-        '/usr/bin/chromium-browser',
-    ];
-    
-    for (const path of paths) {
-        if (fs.existsSync(path)) {
-            return path;
-        }
-    }
-    throw new Error('Chrome not found');
-}
-
-async function generateImage(template, data, width, height) {
-    const templatePath = path.join(__dirname, template);
-    const templateContent = fs.readFileSync(templatePath, 'utf8');
-    const compiledTemplate = Handlebars.compile(templateContent);
-    const html = compiledTemplate(data);
-
-    const executablePath = await findChrome();
-    const browser = await puppeteer.launch({
-        executablePath,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    
-    try {
-        const page = await browser.newPage();
-        
-        // Set viewport before content
-        await page.setViewport({
-            width,
-            height,
-            deviceScaleFactor: 1
-        });
-
-        // Set content and wait for network idle
-        await page.setContent(html, {
-            waitUntil: ['networkidle0', 'load']
-        });
-
-        // Use a promise to wait instead of waitForTimeout
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Take screenshot with specific settings
-        const imageBuffer = await page.screenshot({
-            type: 'png',
-            fullPage: false,
-            omitBackground: false,
-            encoding: 'binary'
-        });
-
-        return imageBuffer;
-    } finally {
-        await browser.close();
-    }
-}
 
 async function run() {
     try {
@@ -42871,169 +42660,80 @@ async function run() {
             })
         ]);
 
-        // Generate OG image and splash image
-        const imageData = {
-            title: repoData.data.name,
-            description: repoData.data.description,
-            username: `@${userData.data.login}`,
-            avatarUrl: userData.data.avatar_url
-        };
-
-        const [ogImageBuffer, splashImageBuffer] = await Promise.all([
-            generateOGImage(imageData),
-            generateSplashImage({
-                title: repoData.data.name,
-                avatarUrl: userData.data.avatar_url
-            })
-        ]);
-
         // Generate the site URL
         const siteUrl = cname ? `https://${cname}` : `https://${owner}.github.io/${repo}`;
-
-        // Create blobs for the images
-        const [ogImageBlob, splashImageBlob] = await Promise.all([
-            octokit.rest.git.createBlob({
-                owner,
-                repo,
-                content: ogImageBuffer.toString('base64'),
-                encoding: 'base64'
-            }),
-            octokit.rest.git.createBlob({
-                owner,
-                repo,
-                content: splashImageBuffer.toString('base64'),
-                encoding: 'base64'
-            })
-        ]);
 
         // Read README.md
         const readmePath = path.join(process.env.GITHUB_WORKSPACE, 'README.md');
         const readmeContent = fs.readFileSync(readmePath, 'utf8');
-
-        // Convert markdown to HTML
         const htmlContent = marked(readmeContent);
 
-        // Read and compile template
+        // Read template
         const templatePath = __nccwpck_require__.ab + "template.html";
         const templateContent = fs.readFileSync(__nccwpck_require__.ab + "template.html", 'utf8');
         const template = Handlebars.compile(templateContent);
 
-        // Generate final HTML with image URLs
+        // Generate the final HTML
         const finalHtml = template({
             title: repoData.data.name,
-            description: repoData.data.description || '',
+            description: repoData.data.description,
             content: htmlContent,
-            currentUrl: siteUrl,
             ogImageUrl: `${siteUrl}/og-image.png`,
-            splashImageUrl: `${siteUrl}/splash-image.png`
+            splashImageUrl: `${siteUrl}/splash-image.png`,
+            currentUrl: siteUrl
         });
 
-        // Create or update gh-frame branch
-        const branchName = 'gh-frame';
-        let branchRef;
+        // Create or update the index.html file
+        const branchName = core.getInput('branch_name') || 'gh-frame';
+        const indexPath = 'index.html';
 
         try {
-            // Try to get the branch
-            const { data: ref } = await octokit.rest.git.getRef({
+            // Try to get the current file
+            const { data: currentFile } = await octokit.rest.repos.getContent({
                 owner,
                 repo,
-                ref: `heads/${branchName}`
+                path: indexPath,
+                ref: branchName
             });
-            branchRef = ref;
+
+            // Update the file
+            await octokit.rest.repos.createOrUpdateFileContents({
+                owner,
+                repo,
+                path: indexPath,
+                message: 'Update index.html',
+                content: Buffer.from(finalHtml).toString('base64'),
+                sha: currentFile.sha,
+                branch: branchName
+            });
         } catch (error) {
             if (error.status === 404) {
-                // Branch doesn't exist, create it
-                const { data: mainBranch } = await octokit.rest.git.getRef({
+                // File doesn't exist, create it
+                await octokit.rest.repos.createOrUpdateFileContents({
                     owner,
                     repo,
-                    ref: 'heads/main'
-                });
-
-                await octokit.rest.git.createRef({
-                    owner,
-                    repo,
-                    ref: `refs/heads/${branchName}`,
-                    sha: mainBranch.object.sha
+                    path: indexPath,
+                    message: 'Create index.html',
+                    content: Buffer.from(finalHtml).toString('base64'),
+                    branch: branchName
                 });
             } else {
                 throw error;
             }
         }
 
-        // Create tree items including images
-        const files = {
-            'index.html': {
-                content: finalHtml,
-                type: 'blob',
-                mode: '100644'
-            },
-            'styles.css': {
-                content: fs.readFileSync(__nccwpck_require__.ab + "styles.css", 'utf8'),
-                type: 'blob',
-                mode: '100644'
-            },
-            'og-image.png': {
-                sha: ogImageBlob.data.sha,
-                type: 'blob',
-                mode: '100644'
-            },
-            'splash-image.png': {
-                sha: splashImageBlob.data.sha,
-                type: 'blob',
-                mode: '100644'
+        // Enable GitHub Pages
+        await octokit.rest.repos.update({
+            owner,
+            repo,
+            has_pages: true,
+            source: {
+                branch: branchName,
+                path: '/'
             }
-        };
-
-        if (cname) {
-            files['CNAME'] = {
-                content: cname,
-                type: 'blob',
-                mode: '100644'
-            };
-        }
-
-        // Create tree items
-        const treeItems = Object.entries(files).map(([path, file]) => ({
-            path,
-            mode: file.mode,
-            type: file.type,
-            ...(file.sha ? { sha: file.sha } : { content: file.content })
-        }));
-
-        const { data: tree } = await octokit.rest.git.createTree({
-            owner,
-            repo,
-            tree: treeItems,
-            base_tree: branchRef ? branchRef.object.sha : undefined
         });
 
-        // Create a commit
-        const { data: commit } = await octokit.rest.git.createCommit({
-            owner,
-            repo,
-            message: 'Update static page with generated images',
-            tree: tree.sha,
-            parents: branchRef ? [branchRef.object.sha] : []
-        });
-
-        // Update the branch reference
-        await octokit.rest.git.updateRef({
-            owner,
-            repo,
-            ref: `heads/${branchName}`,
-            sha: commit.sha,
-            force: true
-        });
-
-        core.info('Static page updated successfully!');
-        core.info(`\nTo complete setup (one-time step):
-1. Go to your repository's Settings
-2. Navigate to Pages (in the left sidebar)
-3. Under "Branch", select "gh-frame"
-4. Click Save
-
-Your page will be available at: ${siteUrl}`);
-
+        core.setOutput('url', siteUrl);
     } catch (error) {
         core.setFailed(error.message);
     }
