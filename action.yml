@@ -1,18 +1,21 @@
-name: 'README to Static Page'
-description: 'Builds a static page from README.md and updates gh-frame branch'
-author: 'Your Name'
-inputs:
-  cname:
-    description: 'Custom domain for GitHub Pages'
-    required: false
-    default: ''
-  token:
-    description: 'GitHub token'
-    required: true
-    default: ''
-runs:
-  using: 'node20'
-  main: 'dist/index.js'
+name: 'Farcaster-friendly Repo Page'
+description: 'Creates a Farcaster-friendly static page from your README.md with automatic frame support'
+author: 'vrypan'
+
 branding:
   icon: 'book'
-  color: 'blue' 
+  color: 'blue'
+
+inputs:
+  token:
+    description: 'GitHub token for repository access'
+    required: true
+    default: ''
+  cname:
+    description: 'Custom domain for GitHub Pages (optional)'
+    required: false
+    default: ''
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js' 

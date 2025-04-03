@@ -1,26 +1,24 @@
-# README to Static Page GitHub Action
+# Farcaster-friendly Repo Page
 
-(test)
-
-This GitHub Action automatically builds a static page from your repository's README.md file and updates a `gh-frame` branch. The generated page can be served using GitHub Pages with an optional custom domain.
-
+This GitHub Action automatically converts your repository's README.md into a Farcaster-friendly static website with frame support, hosted on GitHub Pages. It handles all the setup automatically - no manual configuration needed!
 
 ## Features
 
-- Automatically converts README.md to a static HTML page
-- Updates a `gh-frame` branch with the generated content
-- Supports custom domain configuration via CNAME
-- Clean, responsive design
-- Automatic updates when README.md changes
+- 🚀 One-click setup: Automatically configures GitHub Pages
+- 🖼️ Farcaster Frame support out of the box
+- 📱 Responsive design for both web and Farcaster clients
+- 🔄 Auto-updates when README changes
+- 🔗 Custom domain support
+- 🛠️ Zero configuration needed
 
 ## Usage
 
 ### Basic Setup
 
-1. Create a workflow file (e.g., `.github/workflows/build.yml`) in your repository:
+Add this workflow to your repository (e.g., `.github/workflows/build.yml`):
 
 ```yaml
-name: Build Static Page
+name: Build Farcaster Page
 
 on:
   push:
@@ -34,74 +32,67 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
+      - name: Build Farcaster Page
+        uses: vrypan/gh-frame@v1
         with:
-          fetch-depth: 0
-
-      - name: Build Static Page
-        uses: your-username/readme-to-static-page@v1
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+That's it! Your Farcaster-friendly page will be available at: `https://{username}.github.io/{repository-name}`
 
 ### With Custom Domain
 
 To use a custom domain, add the `cname` input:
 
 ```yaml
-- name: Build Static Page
-  uses: your-username/readme-to-static-page@v1
+- name: Build Farcaster Page
+  uses: vrypan/gh-frame@v1
   with:
+    token: ${{ secrets.GITHUB_TOKEN }}
     cname: 'docs.yourdomain.com'
 ```
 
-## Configuration
+Then configure your DNS settings to point to GitHub Pages.
 
-### Inputs
+## Inputs
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
+| `token` | GitHub token for repository access | Yes | N/A |
 | `cname` | Custom domain for GitHub Pages | No | '' |
 
-## GitHub Pages Setup
+## How it Works
 
-1. Go to your repository's Settings
-2. Navigate to Pages
-3. Set the source to the `gh-frame` branch
-4. If using a custom domain:
-   - Enter your domain in the Custom domain field
-   - Configure your DNS settings to point to GitHub Pages
-   - Wait for DNS propagation
+1. When you push changes to README.md, the action automatically:
+   - Converts your README to a Farcaster-friendly HTML page
+   - Adds necessary frame meta tags and handlers
+   - Creates/updates the gh-frame branch
+   - Configures GitHub Pages to serve from this branch
+   - Sets up all necessary permissions and settings
+
+2. Your page is immediately available at your GitHub Pages URL, ready to be shared on Farcaster
+
+## Farcaster Frame Support
+
+The generated page includes all necessary meta tags for Farcaster frames, allowing for rich interactions when shared on Farcaster. The page is optimized for both web browsers and Farcaster clients.
 
 ## Customization
 
-The generated page uses a clean, responsive design. You can customize the appearance by:
+Want to customize the look? Fork this repository and modify:
+- `src/styles.css` for styling
+- `src/template.html` for layout and frame configuration
 
-1. Forking this repository
-2. Modifying the `src/styles.css` file
-3. Building and publishing your own version of the action
+## Contributing
 
-## Development
-
-### Building
-
-```bash
-npm install
-npm run build
-```
-
-### Testing
-
-```bash
-npm test
-```
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. 
 
 ## Last updated
 
