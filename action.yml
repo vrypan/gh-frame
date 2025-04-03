@@ -7,8 +7,21 @@ branding:
   color: 'blue'
 
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - name: Install ImageMagick
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y imagemagick
+      shell: bash
+
+    - name: Run Action
+      run: node ${{ github.action_path }}/dist/index.js
+      shell: bash
+      env:
+        INPUT_TOKEN: ${{ inputs.token }}
+        INPUT_CNAME: ${{ inputs.cname }}
+        GITHUB_TOKEN: ${{ inputs.token }}
 
 inputs:
   token:
