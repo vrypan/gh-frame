@@ -2,6 +2,7 @@
 
 This GitHub Action automatically builds a static page from your repository's README.md file and updates a `gh-frame` branch. The generated page can be served using GitHub Pages with an optional custom domain.
 
+
 ## Features
 
 - Automatically converts README.md to a static HTML page
