@@ -1,8 +1,10 @@
 const axios = require('axios');
-const svg2img = require('svg2img');
+const fs = require('fs').promises;
+const os = require('os');
+const path = require('path');
+const { execFile } = require('child_process');
 const { promisify } = require('util');
-
-const svg2imgAsync = promisify(svg2img);
+const execFileAsync = promisify(execFile);
 
 async function fetchBase64Image(url) {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -82,22 +84,44 @@ async function generateSVG(data, isOG = true) {
     }
 }
 
+async function svgToPng(svg, width, height) {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'svg-'));
+    const svgPath = path.join(tempDir, 'input.svg');
+    const pngPath = path.join(tempDir, 'output.png');
+
+    try {
+        // Write SVG to temp file
+        await fs.writeFile(svgPath, svg);
+
+        // Convert SVG to PNG using ImageMagick
+        await execFileAsync('convert', [
+            svgPath,
+            '-background', 'white',
+            '-format', 'png',
+            pngPath
+        ]);
+
+        // Read the PNG file
+        const pngBuffer = await fs.readFile(pngPath);
+
+        // Clean up temp files
+        await fs.rm(tempDir, { recursive: true });
+
+        return pngBuffer;
+    } catch (error) {
+        console.error('Error converting SVG to PNG:', error);
+        throw error;
+    }
+}
+
 async function generateOGImage(data) {
     const svg = await generateSVG(data, true);
-    return svg2imgAsync(svg, {
-        format: 'png',
-        width: 1200,
-        height: 800
-    });
+    return svgToPng(svg, 1200, 800);
 }
 
 async function generateSplashImage(data) {
     const svg = await generateSVG(data, false);
-    return svg2imgAsync(svg, {
-        format: 'png',
-        width: 200,
-        height: 200
-    });
+    return svgToPng(svg, 200, 200);
 }
 
 // Helper function to escape XML special characters
