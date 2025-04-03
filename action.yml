@@ -8,7 +8,6 @@ branding:
 
 runs:
   using: 'node20'
-  pre: 'npm install sharp'
   main: 'dist/index.js'
 
 inputs:
@@ -19,4 +18,4 @@ inputs:
   cname:
     description: 'Custom domain for GitHub Pages (optional)'
     required: false
-    default: '' 
+    default: ''
