@@ -42677,6 +42677,22 @@ async function run() {
             core.warning('README.md not found or cannot be read, using default content');
             readmeContent = `# ${repoData.data.name}\n\n${repoData.data.description || 'No description provided.'}`;
         }
+
+        // Rewrite relative image links
+        const rawGithubUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main`;
+        readmeContent = readmeContent.replace(
+            /!\[([^\]]*)\]\(([^)]+)\)/g,
+            (match, alt, url) => {
+                // Skip if URL is already absolute
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    return match;
+                }
+                // Remove leading ./ or / if present
+                const cleanPath = url.replace(/^\.?\//, '');
+                return `![${alt}](${rawGithubUrl}/${cleanPath})`;
+            }
+        );
+
         const htmlContent = marked(readmeContent);
 
         // Read template
