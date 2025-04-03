@@ -69,7 +69,9 @@ runs:
         if git show-ref --verify --quiet refs/heads/gh-frame; then
           git checkout gh-frame
         else
-          git checkout -b gh-frame
+          git checkout --orphan gh-frame
+          git reset --hard
+          git commit --allow-empty -m "Initializing gh-frame branch"
         fi
       shell: bash
 

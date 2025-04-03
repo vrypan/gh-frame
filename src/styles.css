@@ -20,6 +20,9 @@ body {
     padding: 0.5rem;
 }
 
+img {
+    width: 90%;
+}
 main {
     background-color: var(--background-color);
     border: 1px solid var(--border-color);
