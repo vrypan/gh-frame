@@ -75,11 +75,24 @@ runs:
 
     - name: Commit generated files
       run: |
-        git add og-image.png splash-image.png index.html styles.css
-        if [ -n "$CNAME" ]; then
+        # Only add files that exist
+        for file in og-image.png splash-image.png index.html styles.css; do
+          if [ -f "$file" ]; then
+            git add "$file"
+          fi
+        done
+        
+        # Add CNAME if it exists and is provided
+        if [ -n "$CNAME" ] && [ -f "CNAME" ]; then
           git add CNAME
         fi
-        git commit -m "Update static page with generated images" || exit 0
+        
+        # Only commit if there are changes
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update static page with generated images"
+        fi
       shell: bash
       env:
         CNAME: ${{ inputs.cname }}
