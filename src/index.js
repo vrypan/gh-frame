@@ -49,17 +49,22 @@ async function run() {
             currentUrl: siteUrl
         });
 
-        // Create or update the index.html file
-        const branchName = core.getInput('branch_name') || 'gh-frame';
-        const indexPath = 'index.html';
-
         // Create the necessary files
         const files = {
             'index.html': finalHtml,
-            'styles.css': fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8'),
-            'og-image.png': fs.readFileSync(path.join(__dirname, 'og-image.png')),
-            'splash-image.png': fs.readFileSync(path.join(__dirname, 'splash-image.png'))
+            'styles.css': fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8')
         };
+
+        // Only add image files if they exist
+        const imageFiles = ['og-image.png', 'splash-image.png'];
+        for (const imageFile of imageFiles) {
+            const imagePath = path.join(__dirname, imageFile);
+            if (fs.existsSync(imagePath)) {
+                files[imageFile] = fs.readFileSync(imagePath);
+            } else {
+                core.warning(`Warning: ${imageFile} not found. Skipping image file.`);
+            }
+        }
 
         // Create or update each file
         for (const [filePath, content] of Object.entries(files)) {
