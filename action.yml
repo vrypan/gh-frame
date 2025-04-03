@@ -9,6 +9,7 @@ inputs:
   token:
     description: 'GitHub token'
     required: true
+    default: ''
 runs:
   using: 'node20'
   main: 'dist/index.js'
