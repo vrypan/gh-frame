@@ -20,4 +20,4 @@ jobs:
       - name: Build Static Page
         uses: ./
         with:
-          cname: ${{ inputs.cname }} 
+          token: ${{ secrets.GITHUB_TOKEN }} 
