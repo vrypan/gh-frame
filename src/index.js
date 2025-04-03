@@ -108,38 +108,14 @@ async function run() {
             force: true
         });
 
-        // Configure GitHub Pages
-        try {
-            await octokit.rest.repos.updateBranchProtection({
-                owner,
-                repo,
-                branch: branchName,
-                required_status_checks: null,
-                enforce_admins: false,
-                restrictions: null,
-                allow_force_pushes: true,
-                allow_deletions: false,
-                required_pull_request_reviews: null
-            });
-        } catch (error) {
-            core.warning('Could not configure branch protection: ' + error.message);
-        }
-
-        try {
-            await octokit.rest.repos.updateInformationAboutPagesSite({
-                owner,
-                repo,
-                source: {
-                    branch: branchName,
-                    path: '/'
-                }
-            });
-            core.info(`GitHub Pages configured! Site will be available at https://${owner}.github.io/${repo}`);
-        } catch (error) {
-            core.warning('Could not configure GitHub Pages: ' + error.message);
-        }
-
         core.info('Static page updated successfully!');
+        core.info(`\nTo complete setup (one-time step):
+1. Go to your repository's Settings
+2. Navigate to Pages (in the left sidebar)
+3. Under "Branch", select "gh-frame"
+4. Click Save
+
+Your page will be available at: https://${owner}.github.io/${repo}`);
 
     } catch (error) {
         core.setFailed(error.message);

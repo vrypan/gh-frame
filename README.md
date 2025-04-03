@@ -11,11 +11,38 @@ This GitHub Action automatically converts your repository's README.md into a Far
 - 🔗 Custom domain support
 - 🛠️ Zero configuration needed
 
-## Usage
+## Quick Setup
 
-### Basic Setup
+1. Create `.github/workflows/main.yml` with:
 
-Add this workflow to your repository (e.g., `.github/workflows/build.yml`):
+```yaml
+name: Build Farcaster Page
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vrypan/gh-frame@v1.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+2. **Enable GitHub Pages** (one-time setup):
+   - Go to your repository's Settings
+   - Navigate to Pages (in the left sidebar)
+   - Under "Branch", select `gh-frame`
+   - Click Save
+
+That's it! Your page will be available at: `https://{username}.github.io/{repository-name}`
+
+## Full Configuration (Optional)
+
+If you want more control, here's the full configuration with all options:
 
 ```yaml
 name: Build Farcaster Page
@@ -25,7 +52,8 @@ on:
     branches:
       - main
     paths:
-      - 'README.md'
+      - 'README.md'  # Only trigger on README updates
+  workflow_dispatch:  # Allow manual triggers
 
 jobs:
   build:
@@ -37,23 +65,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build Farcaster Page
-        uses: vrypan/gh-frame@v1
+        uses: vrypan/gh-frame@v1.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          cname: 'your-custom-domain.com'  # Optional: Add custom domain
 ```
 
-That's it! Your Farcaster-friendly page will be available at: `https://{username}.github.io/{repository-name}`
+### Custom Domain (Optional)
 
-### With Custom Domain
-
-To use a custom domain, add the `cname` input:
+To use a custom domain, just add the `cname` parameter:
 
 ```yaml
-- name: Build Farcaster Page
-  uses: vrypan/gh-frame@v1
-  with:
-    token: ${{ secrets.GITHUB_TOKEN }}
-    cname: 'docs.yourdomain.com'
+      - uses: vrypan/gh-frame@v1.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          cname: 'your-custom-domain.com'
 ```
 
 Then configure your DNS settings to point to GitHub Pages.
@@ -67,7 +93,7 @@ Then configure your DNS settings to point to GitHub Pages.
 
 ## How it Works
 
-1. When you push changes to README.md, the action automatically:
+1. When you push changes, the action automatically:
    - Converts your README to a Farcaster-friendly HTML page
    - Adds necessary frame meta tags and handlers
    - Creates/updates the gh-frame branch
