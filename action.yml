@@ -6,6 +6,23 @@ branding:
   icon: 'book'
   color: 'blue'
 
+inputs:
+  token:
+    description: 'GitHub token for authentication'
+    required: false
+    default: '${{ github.token }}'
+  cname:
+    description: 'Custom domain for GitHub Pages'
+    required: false
+  branch_name:
+    description: 'Branch name for GitHub Pages'
+    required: false
+    default: 'gh-frame'
+
+permissions:
+  contents: write
+  pages: write
+
 runs:
   using: 'composite'
   steps:
@@ -73,17 +90,3 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
-
-inputs:
-  token:
-    description: 'GitHub token for repository access'
-    required: true
-    default: ''
-  cname:
-    description: 'Custom domain name for the site (e.g., docs.example.com)'
-    required: false
-    default: ''
-  branch_name:
-    description: 'Branch name to deploy the static site to'
-    required: false
-    default: 'gh-frame'
