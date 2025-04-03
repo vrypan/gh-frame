@@ -4,7 +4,25 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 const Handlebars = require('handlebars');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+
+// Function to find Chrome executable
+async function findChrome() {
+    // Common Chrome paths in GitHub Actions
+    const paths = [
+        '/usr/bin/google-chrome',
+        '/usr/bin/google-chrome-stable',
+        '/usr/bin/chromium',
+        '/usr/bin/chromium-browser',
+    ];
+    
+    for (const path of paths) {
+        if (fs.existsSync(path)) {
+            return path;
+        }
+    }
+    throw new Error('Chrome not found');
+}
 
 async function generateImage(template, data, width, height) {
     const templatePath = path.join(__dirname, template);
@@ -12,9 +30,12 @@ async function generateImage(template, data, width, height) {
     const compiledTemplate = Handlebars.compile(templateContent);
     const html = compiledTemplate(data);
 
+    const executablePath = await findChrome();
     const browser = await puppeteer.launch({
+        executablePath,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
+    
     const page = await browser.newPage();
     await page.setViewport({ width, height });
     await page.setContent(html);
