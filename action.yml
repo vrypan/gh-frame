@@ -6,6 +6,11 @@ branding:
   icon: 'book'
   color: 'blue'
 
+runs:
+  using: 'node20'
+  pre: 'npm install sharp'
+  main: 'dist/index.js'
+
 inputs:
   token:
     description: 'GitHub token for repository access'
@@ -14,8 +19,4 @@ inputs:
   cname:
     description: 'Custom domain for GitHub Pages (optional)'
     required: false
-    default: ''
-
-runs:
-  using: 'node20'
-  main: 'dist/index.js' 
+    default: '' 
