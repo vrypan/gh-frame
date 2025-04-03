@@ -97,8 +97,12 @@ runs:
       env:
         CNAME: ${{ inputs.cname }}
 
-    - name: Push changes
+    - name: Pull remote changes and push
       run: |
+        # Pull remote changes with rebase
+        git pull --rebase origin gh-frame || true
+        
+        # Push changes
         git push origin gh-frame
       shell: bash
       env:
