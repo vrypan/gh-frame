@@ -42722,16 +42722,13 @@ async function run() {
             }
         }
 
-        // Enable GitHub Pages
-        await octokit.rest.repos.update({
-            owner,
-            repo,
-            has_pages: true,
-            source: {
-                branch: branchName,
-                path: '/'
-            }
-        });
+        core.info(`\nTo complete setup (one-time step):
+1. Go to your repository's Settings
+2. Navigate to Pages (in the left sidebar)
+3. Under "Branch", select "${branchName}"
+4. Click Save
+
+Your page will be available at: ${siteUrl}`);
 
         core.setOutput('url', siteUrl);
     } catch (error) {
