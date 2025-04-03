@@ -42646,6 +42646,15 @@ async function run() {
         const octokit = github.getOctokit(token);
         const context = github.context;
 
+        // Get repository information
+        const { owner, repo } = context.repo;
+        
+        // Get repository details for the title
+        const { data: repoData } = await octokit.rest.repos.get({
+            owner,
+            repo
+        });
+
         // Read README.md
         const readmePath = path.join(process.env.GITHUB_WORKSPACE, 'README.md');
         const readmeContent = fs.readFileSync(readmePath, 'utf8');
@@ -42658,14 +42667,15 @@ async function run() {
         const templateContent = fs.readFileSync(__nccwpck_require__.ab + "template.html", 'utf8');
         const template = Handlebars.compile(templateContent);
 
+        // Generate the site URL
+        const siteUrl = cname ? `https://${cname}` : `https://${owner}.github.io/${repo}`;
+
         // Generate final HTML
         const finalHtml = template({
-            title: 'Documentation',
-            content: htmlContent
+            title: repoData.name,
+            content: htmlContent,
+            currentUrl: siteUrl
         });
-
-        // Get repository information
-        const { owner, repo } = context.repo;
 
         // Create or update gh-frame branch
         const branchName = 'gh-frame';
@@ -42749,7 +42759,7 @@ async function run() {
 3. Under "Branch", select "gh-frame"
 4. Click Save
 
-Your page will be available at: https://${owner}.github.io/${repo}`);
+Your page will be available at: ${siteUrl}`);
 
     } catch (error) {
         core.setFailed(error.message);
