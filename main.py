@@ -61,12 +61,37 @@ class GitHubFrameGenerator:
         env = Environment(loader=FileSystemLoader(self.template_path))
         template = env.get_template('index.html')
 
+        # Get repository name and owner from full repo name
+        owner, repo_name = self.repo_name.split('/') if '/' in self.repo_name else ('', '')
+
+        # Determine site URL
+        site_url = f"https://{self.domain}" if self.domain else f"https://{owner}.github.io/{repo_name}"
+
+        # Get repository description from GitHub API if token is available
+        description = ""
+        if self.token:
+            try:
+                g = Github(self.token)
+                repo = g.get_repo(self.repo_name)
+                description = repo.description or f"GitHub repository page for {repo_name}"
+            except Exception as e:
+                logger.warning(f"Could not fetch repository description: {e}")
+                description = f"GitHub repository page for {repo_name}"
+        else:
+            description = f"GitHub repository page for {repo_name}"
+
         # Prepare context
         context = {
             'content': html_content,
             'repo_name': self.repo_name,
             'domain': self.domain,
-            'branch': self.branch
+            'branch': self.branch,
+            'site_url': site_url,
+            'title': repo_name.replace('-', ' ').title(),
+            'description': description,
+            'image_url': f"{site_url}/og-image.png",
+            'owner': owner,
+            'repo': repo_name
         }
 
         return template.render(context)
