@@ -24,6 +24,10 @@ class GitHubFrameGenerator:
         self.owner, self.repo_name = self.repo.split('/') if self.repo else (None, None)
         self.raw_base_url = f"https://raw.githubusercontent.com/{self.owner}/{self.repo_name}/main"
         
+        # Set up paths for action and target repositories
+        self.action_dir = os.path.join(os.getcwd(), 'action')
+        self.target_dir = os.path.join(os.getcwd(), 'target')
+        
     def rewrite_image_paths(self, content: str) -> str:
         """Rewrite relative image paths to absolute URLs using raw.githubusercontent.com."""
         # Pattern to match markdown image syntax: ![alt](path)
@@ -51,7 +55,8 @@ class GitHubFrameGenerator:
 
     def get_readme_content(self) -> str:
         try:
-            with open('README.md', 'r', encoding='utf-8') as f:
+            readme_path = os.path.join(self.target_dir, 'README.md')
+            with open(readme_path, 'r', encoding='utf-8') as f:
                 content = f.read()
                 if not content.strip():
                     content = "# Welcome to My Repository\n\nThis is a placeholder README."
@@ -95,14 +100,16 @@ class GitHubFrameGenerator:
         }
         
         # Load and render template
-        env = Environment(loader=FileSystemLoader('templates'))
+        templates_dir = os.path.join(self.action_dir, 'templates')
+        env = Environment(loader=FileSystemLoader(templates_dir))
         template = env.get_template('index.html')
         return template.render(**context)
 
     def save_html(self, html_content: str):
-        """Save the generated HTML to index.html."""
+        """Save the generated HTML to index.html in the target repository."""
         try:
-            with open('index.html', 'w', encoding='utf-8') as f:
+            output_path = os.path.join(self.target_dir, 'index.html')
+            with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(html_content)
             logger.info("HTML file generated successfully")
         except Exception as e:

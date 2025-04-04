@@ -8,21 +8,32 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      
+      # First checkout the action repository
+      - name: Checkout action repository
+        uses: actions/checkout@v4
+        with:
+          repository: vrypan/gh-frame
+          path: action
+          
+      # Then checkout the target repository
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+        with:
+          path: target
+          
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           
       - name: Install dependencies
-        working-directory: ${{ github.workspace }}
+        working-directory: ${{ github.workspace }}/action
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
       - name: Run GitHub Frame Generator
-        working-directory: ${{ github.workspace }}
+        working-directory: ${{ github.workspace }}/action
         run: python main.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

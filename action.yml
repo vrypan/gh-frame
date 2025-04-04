@@ -23,9 +23,19 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout repository
+    # First checkout the action repository
+    - name: Checkout action repository
       uses: actions/checkout@v4
       with:
+        repository: vrypan/gh-frame
+        path: action
+        fetch-depth: 0
+
+    # Then checkout the target repository
+    - name: Checkout target repository
+      uses: actions/checkout@v4
+      with:
+        path: target
         fetch-depth: 0
 
     - name: Set up Python
@@ -34,12 +44,14 @@ runs:
         python-version: '3.11'
 
     - name: Install dependencies
+      working-directory: ${{ github.workspace }}/action
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
       shell: bash
 
     - name: Generate frame
+      working-directory: ${{ github.workspace }}/action
       run: python main.py
       shell: bash
       env:
@@ -55,6 +67,7 @@ runs:
       shell: bash
 
     - name: Commit and push changes
+      working-directory: ${{ github.workspace }}/target
       run: |
         # Check if branch exists
         if ! git show-ref --verify --quiet refs/heads/${{ inputs.branch }}; then
