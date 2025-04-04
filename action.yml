@@ -86,6 +86,7 @@ runs:
 
     - name: Get OG Image
       run: |
+        cd ${{ github.workspace }}
         chmod +x ${{ github.action_path }}/generate-images.sh
         ${{ github.action_path }}/generate-images.sh
       shell: bash
