@@ -17,25 +17,20 @@ A GitHub Action that creates a Farcaster-friendly static page from your README.m
 1. Create a new workflow file in your repository at `.github/workflows/gh-frame.yml`:
 
 ```yaml
-name: Generate Static Page
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
+name: Build Farcaster Page
+on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: vrypan/gh-frame@v1.1.0
+      - uses: vrypan/gh-frame@v1.1.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Optional: Custom domain for GitHub Pages
-          cname: your-domain.com
-          # Optional: Branch name for GitHub Pages (default: gh-frame)
-          branch_name: gh-frame
 ```
 
 2. Go to your repository's Settings > Pages and:
