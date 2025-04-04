@@ -43,13 +43,13 @@ runs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl git python3.11 python3.11-pip imagemagick
+        sudo apt-get install -y curl git python3 python3-pip imagemagick
       shell: bash
     
     - name: Install Python dependencies
       run: |
         cd ${{ github.action_path }}
-        python3.11 -m pip install -r requirements.txt
+        python3 -m pip install -r requirements.txt
       shell: bash
 
     - name: Configure Git
@@ -103,7 +103,7 @@ runs:
         export BRANCH=${{ inputs.branch_name }}
         export GITHUB_TOKEN=${{ inputs.token }}
         cd ${{ github.action_path }}
-        python3.11 main.py
+        python3 main.py
         # Move generated files to the repository root
         mv index.html ${{ github.workspace }}/ 2>/dev/null || true
         mv styles.css ${{ github.workspace }}/ 2>/dev/null || true
