@@ -58,8 +58,7 @@ runs:
         else
           # Branch doesn't exist, create it
           git checkout --orphan gh-frame
-          git rm -rf .
-          git clean -fdx
+          git reset --hard
           git commit --allow-empty -m "Initializing gh-frame branch"
           git push origin gh-frame
         fi
