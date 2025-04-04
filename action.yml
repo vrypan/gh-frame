@@ -94,6 +94,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
         CNAME: ${{ inputs.cname }}
         BRANCH_NAME: ${{ inputs.branch_name }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
 
     - name: Generate static page
       run: |
