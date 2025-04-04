@@ -102,7 +102,7 @@ runs:
         cd ${{ github.action_path }}
         python3.11 main.py
         # Move generated files to the repository root
-        mv index.html ${{ github.workspace }}/
+        mv index.html ${{ github.workspace }}/ 2>/dev/null || true
         mv styles.css ${{ github.workspace }}/ 2>/dev/null || true
       shell: bash
       env:
@@ -113,6 +113,9 @@ runs:
     - name: Commit generated files
       run: |
         cd ${{ github.workspace }}
+        # Configure Git with the token
+        git config --global url."https://x-access-token:$GITHUB_TOKEN@github.com/".insteadOf "https://github.com/"
+        
         # Only add files that exist
         for file in og-image.png splash-image.png index.html styles.css; do
           if [ -f "$file" ]; then
@@ -135,11 +138,4 @@ runs:
       shell: bash
       env:
         CNAME: ${{ inputs.cname }}
-        GITHUB_TOKEN: ${{ inputs.token }}
-
-    - name: Push changes
-      run: |
-        git push origin gh-frame
-      shell: bash
-      env:
         GITHUB_TOKEN: ${{ inputs.token }}
