@@ -30,7 +30,7 @@ runs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl git nodejs npm
+        sudo apt-get install -y curl git nodejs npm imagemagick
       shell: bash
     
     - name: Install Node.js dependencies
