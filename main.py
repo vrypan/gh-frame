@@ -22,19 +22,16 @@ class GitHubFrameGenerator:
         self.token = os.getenv('GITHUB_TOKEN')
         self.repo_name = os.getenv('GITHUB_REPOSITORY')
         self.domain = os.getenv('DOMAIN', '')
-        self.branch = os.getenv('BRANCH', 'gh-frame')
+        self.branch = os.getenv('BRANCH', 'main')
 
         # Set up paths relative to the current directory
         self.current_dir = os.getcwd()
-        # self.readme_path = os.path.join(self.current_dir, 'README.md')
-        # self.template_path = os.path.join(self.current_dir, 'templates')
+        self.readme_path = os.path.join(self.current_dir, 'README.md')
+        self.template_path = os.path.join(self.current_dir, 'templates')
         self.output_path = os.path.join(self.current_dir, 'index.html')
 
-        # Set up raw base URL for images
-        if self.domain:
-            self.raw_base_url = f'https://{self.domain}/raw/{self.branch}'
-        else:
-            self.raw_base_url = f'https://raw.githubusercontent.com/{self.repo_name}/{self.branch}'
+
+        self.raw_base_url = f'https://raw.githubusercontent.com/{self.repo_name}/main'
 
     def rewrite_image_paths(self, content):
         # Rewrite relative image paths to absolute URLs
