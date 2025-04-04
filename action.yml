@@ -31,6 +31,10 @@ inputs:
     description: "Branch name for GitHub Pages"
     required: false
     default: "gh-frame"
+  style:
+    description: "CSS style use to render the page: light/dark/custom"
+    required: false
+    default: "light"
 
 permissions:
   contents: write
@@ -105,9 +109,14 @@ runs:
         export GITHUB_TOKEN=${{ inputs.token }}
         cd ${{ github.workspace }}
         python3 ${{ github.action_path }}/main.py ./README.md ${{ github.action_path }}/templates
-        # Move generated files to the repository root
-        # mv index.html ${{ github.workspace }}/ 2>/dev/null || true
-        # mv styles.css ${{ github.workspace }}/ 2>/dev/null || true
+        if [ "${{ inputs.branch_name }}" == "dark" ]; then
+          css_file=styles-dark.css
+        else
+          css_file=styles-light.css
+        fi
+        if [ "${{ inputs.branch_name }}" != "custom" ]; then
+          cp ${{ github.action_path }}/templates/${css_file} ./style.css
+        fi
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}

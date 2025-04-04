@@ -54,8 +54,24 @@ class GitHubFrameGenerator:
             raise
 
     def generate_html(self, content):
-        # Convert markdown to HTML
-        html_content = markdown.markdown(content, extensions=['fenced_code', 'codehilite'])
+        # Convert markdown to HTML using GitHub Flavored Markdown
+        html_content = markdown.markdown(content, extensions=[
+            'fenced_code',  # Code blocks with syntax highlighting
+            'codehilite',  # Syntax highlighting
+            'tables',      # Table support
+            'nl2br',       # Convert newlines to <br>
+            'sane_lists',  # Sane list handling
+            'toc',         # Table of contents
+            'footnotes',   # Footnote support
+            'attr_list',   # Attribute lists
+            'def_list',    # Definition lists
+            'abbr',        # Abbreviations
+            'admonition',  # Admonitions
+            'meta',        # Meta data
+            'sane_lists',  # Sane list handling
+            'smarty',      # Smart quotes and other typographic replacements
+            'wikilinks'    # Wiki-style links
+        ])
 
         # Load and render template
         env = Environment(loader=FileSystemLoader(self.template_path))
