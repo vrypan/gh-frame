@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gh-frame</title>
+    <meta name="description" content="A GitHub action that will automatically generate a Farcaster-friendly page for your repo, every time README.md is updated.">
+    <link rel="stylesheet" href="styles.css">
+    <meta property="og:title" content="gh-frame">
+    <meta property="og:description" content="A GitHub action that will automatically generate a Farcaster-friendly page for your repo, every time README.md is updated.">
+    <meta property="og:image" content="https://vrypan.github.io/gh-frame/og-image.png">
+    <meta property="og:url" content="https://vrypan.github.io/gh-frame">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://vrypan.github.io/gh-frame/og-image.png">
+    <meta property="fc:frame" content='{"version":"next","imageUrl":"https://vrypan.github.io/gh-frame/og-image.png","button":{"title":"Open repository","action":{"type":"launch_frame","url":"https://vrypan.github.io/gh-frame","name":"gh-frame","splashImageUrl":"https://vrypan.github.io/gh-frame/splash-image.png","splashBackgroundColor":"#f5f0ec"}}}' />
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk'
+        
+        // Call ready when the page is loaded
+        async function rewriteLinks() {
+            const links = document.querySelectorAll("a[href^='http']");
+            for (let link of links) {
+                link.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    sdk.actions.openUrl(link.getAttribute("href"));
+                });
+            }
+        }
+        window.addEventListener('load', async () => {
+            try {
+                await sdk.actions.ready();
+                console.log('Frame is ready');
+                const ctx = await sdk.context;
+                ctx ? await rewriteLinks() : null;
+            } catch (e) {
+                console.error('Failed to initialize frame:', e);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <h1>gh-frame</h1>
+<p>A GitHub Action that creates a Farcaster-friendly static page from your README.md with automatic frame support.</p>
+<h2>Features</h2>
+<ul>
+<li>Converts your README.md to a beautiful static page</li>
+<li>Automatically generates Open Graph images for social sharing</li>
+<li>Creates a Farcaster frame mini-app for your repository</li>
+<li>Supports custom domain names</li>
+<li>Rewrites relative image links to use raw.githubusercontent.com URLs</li>
+<li>Mobile-friendly design</li>
+<li>Dark mode support</li>
+</ul>
+<h2>Usage</h2>
+<ol>
+<li>Create a new workflow file in your repository at <code>.github/workflows/gh-frame.yml</code>:</li>
+</ol>
+<pre><code class="language-yaml">name: Generate Static Page
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vrypan/gh-frame@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: Custom domain for GitHub Pages
+          cname: your-domain.com
+          # Optional: Branch name for GitHub Pages (default: gh-frame)
+          branch_name: gh-frame
+</code></pre>
+<ol start="2">
+<li>Go to your repository&#39;s Settings &gt; Pages and:<ul>
+<li>Select the <code>gh-frame</code> branch as the source</li>
+<li>Click Save</li>
+</ul>
+</li>
+</ol>
+<p>Your page will be available at:</p>
+<ul>
+<li><code>https://&lt;username&gt;.github.io/&lt;repository&gt;</code></li>
+<li>Or at your custom domain if configured</li>
+</ul>
+<h2>Frame Mini-App</h2>
+<p>The generated page includes a Farcaster frame mini-app that allows users to:</p>
+<ul>
+<li>View your repository directly in Farcaster</li>
+<li>Interact with links in your README</li>
+<li>Share your repository in Farcaster feeds</li>
+</ul>
+<p>The frame includes:</p>
+<ul>
+<li>A custom splash screen with your repository&#39;s image</li>
+<li>A button to open the repository</li>
+<li>Automatic link handling for external URLs</li>
+</ul>
+<h2>Customization</h2>
+<h3>Images</h3>
+<p>The action automatically generates two images:</p>
+<ul>
+<li><code>og-image.png</code>: Used for social sharing and the frame</li>
+<li><code>splash-image.png</code>: Used for the frame splash screen</li>
+</ul>
+<p>You can customize these images by:</p>
+<ol>
+<li>Creating a <code>generate-images.sh</code> script in your repository</li>
+<li>The script should generate both images in the current directory</li>
+</ol>
+<h3>Styling</h3>
+<p>The page uses a clean, modern design with:</p>
+<ul>
+<li>Responsive layout</li>
+<li>Dark mode support</li>
+<li>GitHub-like styling</li>
+<li>Custom fonts and colors</li>
+</ul>
+<h2>Development</h2>
+<pre><code class="language-bash"># Install dependencies
+npm install
+
+# Build the action
+npm run build
+
+# Test locally
+npm test
+</code></pre>
+<h2>License</h2>
+<p>MIT</p>
+
+        </div>
+        <div class="footer">
+            <a href="https://github.com/vrypan/gh-frame" class="github-button">View on Github</a>
+        </div>
+    </div>
+</body>
+</html> 
