@@ -62,7 +62,7 @@ class GitHubFrameGenerator:
         
         # Load and render template
         env = Environment(loader=FileSystemLoader(self.template_path))
-        template = env.get_template('frame.html')
+        template = env.get_template('index.html')
         
         # Prepare context
         context = {
