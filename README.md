@@ -1,121 +1,96 @@
-# Farcaster-friendly Repo Page
+# gh-frame
 
-This GitHub Action automatically converts your repository's README.md into a Farcaster-friendly static website with frame support, hosted on GitHub Pages. It handles all the setup automatically - no manual configuration needed!
+A GitHub Action that creates a Farcaster-friendly static page from your README.md with automatic frame support.
 
 ## Features
 
-- 🚀 One-click setup: Automatically configures GitHub Pages
-- 🖼️ Farcaster Frame support out of the box
-- 📱 Responsive design for both web and Farcaster clients
-- 🔄 Auto-updates when README changes
-- 🔗 Custom domain support
-- 🛠️ Zero configuration needed
+- Converts your README.md to a beautiful static page
+- Automatically generates Open Graph images for social sharing
+- Creates a Farcaster frame mini-app for your repository
+- Supports custom domain names
+- Rewrites relative image links to use raw.githubusercontent.com URLs
+- Mobile-friendly design
+- Dark mode support
 
-## Quick Setup
+## Usage
 
-1. Create `.github/workflows/main.yml` with:
-
-```yaml
-name: Build Farcaster Page
-on: [push, workflow_dispatch]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: vrypan/gh-frame@v1.0.30
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-```
-
-2. **Enable GitHub Pages** (one-time setup):
-   - Go to your repository's Settings
-   - Navigate to Pages (in the left sidebar)
-   - Under "Branch", select `gh-frame`
-   - Click Save
-
-That's it! Your page will be available at: `https://{username}.github.io/{repository-name}`
-
-## Full Configuration (Optional)
-
-If you want more control, here's the full configuration with all options:
+1. Create a new workflow file in your repository at `.github/workflows/gh-frame.yml`:
 
 ```yaml
-name: Build Farcaster Page
+name: Generate Static Page
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'README.md'  # Only trigger on README updates
-  workflow_dispatch:  # Allow manual triggers
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - name: Build Farcaster Page
-        uses: vrypan/gh-frame@v1.0.30
+      - uses: vrypan/gh-frame@v1.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          cname: 'your-custom-domain.com'  # Optional: Add custom domain
-          branch_name: 'gh-frame'  # Optional: Custom branch name
+          # Optional: Custom domain for GitHub Pages
+          cname: your-domain.com
+          # Optional: Branch name for GitHub Pages (default: gh-frame)
+          branch_name: gh-frame
 ```
 
-### Custom Domain (Optional)
+2. Go to your repository's Settings > Pages and:
+   - Select the `gh-frame` branch as the source
+   - Click Save
 
-To use a custom domain, just add the `cname` parameter:
+Your page will be available at:
+- `https://<username>.github.io/<repository>`
+- Or at your custom domain if configured
 
-```yaml
-      - uses: vrypan/gh-frame@v1.0.30
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          cname: 'your-custom-domain.com'
+## Frame Mini-App
+
+The generated page includes a Farcaster frame mini-app that allows users to:
+- View your repository directly in Farcaster
+- Interact with links in your README
+- Share your repository in Farcaster feeds
+
+The frame includes:
+- A custom splash screen with your repository's image
+- A button to open the repository
+- Automatic link handling for external URLs
+
+## Customization
+
+### Images
+
+The action automatically generates two images:
+- `og-image.png`: Used for social sharing and the frame
+- `splash-image.png`: Used for the frame splash screen
+
+You can customize these images by:
+1. Creating a `generate-images.sh` script in your repository
+2. The script should generate both images in the current directory
+
+### Styling
+
+The page uses a clean, modern design with:
+- Responsive layout
+- Dark mode support
+- GitHub-like styling
+- Custom fonts and colors
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Build the action
+npm run build
+
+# Test locally
+npm test
 ```
-
-Then configure your DNS settings to point to GitHub Pages.
-
-## Inputs
-
-| Input | Description | Required | Default |
-|-------|-------------|----------|---------|
-| `token` | GitHub token for repository access | Yes | N/A |
-| `cname` | Custom domain for GitHub Pages | No | '' |
-| `branch_name` | Branch name to deploy the static site to | No | 'gh-frame' |
-
-## How it Works
-
-1. When you push changes, the action automatically:
-   - Converts your README to a Farcaster-friendly HTML page
-   - Generates OG and splash images for frame support
-   - Adds necessary frame meta tags and handlers
-   - Creates/updates the gh-frame branch
-   - Configures GitHub Pages to serve from this branch
-
-## Frame Support
-
-The generated page includes Farcaster Frame support with:
-- Automatic OG image generation
-- Splash image for frame transitions
-- Frame metadata for Farcaster clients
-- Click handling for external links
-
-## Requirements
-
-- GitHub repository with README.md
-- GitHub Pages enabled
-- Repository permissions for the GitHub token
 
 ## License
 
-MIT License - feel free to use this action in your projects!
+MIT
