@@ -38,9 +38,7 @@ fi
 
 # Resisze image
 if ! convert og-image.orig.png -background white -gravity center -extent 1200x800 og-image.png; then
-
     echo "Error: Failed to composite images"
-    rm temp_background.png
     exit 1
 fi
 echo "Successfully converted og-image.png to 1200x800 with white padding"
