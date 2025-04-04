@@ -22,6 +22,7 @@ inputs:
 permissions:
   contents: write
   pages: write
+  id-token: write
 
 runs:
   using: 'composite'
@@ -59,9 +60,8 @@ runs:
           git checkout --orphan gh-frame
           git rm -rf .
           git clean -fdx
-          echo "# GitHub Pages Branch" > README.md
-          git add README.md
-          git commit -m "Initial gh-frame branch commit"
+          git commit --allow-empty -m "Initializing gh-frame branch"
+          git push origin gh-frame
         fi
       shell: bash
 
