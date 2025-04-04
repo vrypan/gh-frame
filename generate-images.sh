@@ -31,13 +31,13 @@ curl -s "$OG_IMAGE_URL" > og-image.orig.png
 echo "Downloaded og-image.orig.png"
 
 # Check if ImageMagick is installed
-if ! command -v magick &> /dev/null; then
+if ! command -v convert &> /dev/null; then
     echo "Error: ImageMagick is not installed. Please install it first."
     exit 1
 fi
 
 # Resisze image
-if ! magick og-image.orig.png -background white -gravity center -extent 1200x800 og-image.png; then
+if ! convert og-image.orig.png -background white -gravity center -extent 1200x800 og-image.png; then
 
     echo "Error: Failed to composite images"
     rm temp_background.png
