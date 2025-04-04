@@ -20,4 +20,5 @@ jobs:
         uses: ./
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch_name: 'gh-frame-test' 
+          branch: 'gh-frame-test'
+          domain: '' 
