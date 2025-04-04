@@ -1,35 +1,19 @@
-name: Build Static Page
+name: Generate Static Page
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'README.md'
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: vrypan/gh-frame@v1.1.1
         with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install ImageMagick
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y imagemagick
-
-      - name: Build Static Page
-        uses: ./
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: Custom domain for GitHub Pages
+          cname: your-domain.com
+          # Optional: Branch name for GitHub Pages (default: gh-frame)
+          branch_name: gh-frame
