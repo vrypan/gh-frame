@@ -9,6 +9,7 @@ node_modules/
 
 # Generated files
 og-image.png
+og-image.orig.png
 splash-image.png
 
 # Test files

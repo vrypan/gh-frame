@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test-repo - GitHub Repository</title>
+    <meta name="description" content="A GitHub repository with Farcaster frame support">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://test-owner.github.io/test-repo">
+    <meta property="og:title" content="test-repo - GitHub Repository">
+    <meta property="og:description" content="A GitHub repository with Farcaster frame support">
+    <meta property="og:image" content="https://test-owner.github.io/test-repo/og-image.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://test-owner.github.io/test-repo">
+    <meta property="twitter:title" content="test-repo - GitHub Repository">
+    <meta property="twitter:description" content="A GitHub repository with Farcaster frame support">
+    <meta property="twitter:image" content="https://test-owner.github.io/test-repo/splash-image.png">
+    
+    <!-- Farcaster Frame -->
+    <meta property="fc:frame" content='{"version":"next","imageUrl":"https://test-owner.github.io/test-repo/og-image.png","button":{"title":"🚩 Start","action":{"type":"launch_frame","url":"https://test-owner.github.io/test-repo","name":"test-repo - GitHub Repository","splashImageUrl":"https://test-owner.github.io/test-repo/splash-image.png","splashBackgroundColor":"#f5f0ec"}}}' />
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #24292e;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            background-color: rgba(27,31,35,0.05);
+            border-radius: 3px;
+        }
+        pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f6f8fa;
+            border-radius: 3px;
+        }
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+        table th {
+            font-weight: 600;
+        }
+        table th, table td {
+            padding: 6px 13px;
+            border: 1px solid #dfe2e5;
+        }
+        table tr {
+            background-color: #fff;
+            border-top: 1px solid #c6cbd1;
+        }
+        table tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+        blockquote {
+            padding: 0 1em;
+            color: #6a737d;
+            border-left: 0.25em solid #dfe2e5;
+            margin: 0 0 16px 0;
+        }
+        img {
+            max-width: 100%;
+            box-sizing: content-box;
+        }
+        .task-list-item {
+            list-style-type: none;
+        }
+        .task-list-item-checkbox {
+            margin: 0 0.2em 0.25em -1.6em;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="gh-frame">gh-frame</h1>
+<p>A GitHub Action that creates a Farcaster-friendly static page from your README.md with automatic frame support.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Converts your README.md to a beautiful static page</li>
+<li>Automatically generates Open Graph images for social sharing</li>
+<li>Creates a Farcaster frame mini-app for your repository</li>
+<li>Supports custom domain names</li>
+<li>Rewrites relative image links to use raw.githubusercontent.com URLs</li>
+<li>Mobile-friendly design</li>
+<li>Dark mode support</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<ol>
+<li>Create a new workflow file in your repository at <code>.github/workflows/gh-frame.yml</code>:</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build Farcaster Page</span>
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">workflow_dispatch</span><span class="p p-Indicator">]</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">      </span><span class="nt">pages</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">      </span><span class="nt">id-token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vrypan/gh-frame@v1.1.10</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+</code></pre></div>
+
+<ol start="2">
+<li>Go to your repository&rsquo;s Settings &gt; Pages and:<br />
+   - Select the <code>gh-frame</code> branch as the source<br />
+   - Click Save</li>
+</ol>
+<p>Your page will be available at:<br />
+- <code>https://&lt;username&gt;.github.io/&lt;repository&gt;</code><br />
+- Or at your custom domain if configured</p>
+<h2 id="frame-mini-app">Frame Mini-App</h2>
+<p>The generated page includes a Farcaster frame mini-app that allows users to:<br />
+- View your repository directly in Farcaster<br />
+- Interact with links in your README<br />
+- Share your repository in Farcaster feeds</p>
+<p>The frame includes:<br />
+- A custom splash screen with your repository&rsquo;s image<br />
+- A button to open the repository<br />
+- Automatic link handling for external URLs</p>
+<h2 id="customization">Customization</h2>
+<h3 id="images">Images</h3>
+<p>The action automatically generates two images:<br />
+- <code>og-image.png</code>: Used for social sharing and the frame<br />
+- <code>splash-image.png</code>: Used for the frame splash screen</p>
+<p>You can customize these images by:<br />
+1. Creating a <code>generate-images.sh</code> script in your repository<br />
+2. The script should generate both images in the current directory</p>
+<h3 id="styling">Styling</h3>
+<p>The page uses a clean, modern design with:<br />
+- Responsive layout<br />
+- Dark mode support<br />
+- GitHub-like styling<br />
+- Custom fonts and colors</p>
+<h2 id="development">Development</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install dependencies</span>
+npm<span class="w"> </span>install
+
+<span class="c1"># Build the action</span>
+npm<span class="w"> </span>run<span class="w"> </span>build
+
+<span class="c1"># Test locally</span>
+npm<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+
+<h2 id="license">License</h2>
+<p>MIT</p>
+<h1 id="test-gfm-features">Test GFM Features</h1>
+<h2 id="code-blocks">Code Blocks</h2>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hello_world</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="tables">Tables</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Support</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tables</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Code</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Lists</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lists">Lists</h2>
+<ul>
+<li>Item 1</li>
+<li>Item 2</li>
+<li>Subitem 2.1</li>
+<li>Subitem 2.2</li>
+</ul>
+<ol>
+<li>Numbered item 1</li>
+<li>Numbered item 2</li>
+</ol>
+<h2 id="task-lists">Task Lists</h2>
+<ul>
+<li>[x] Task 1</li>
+<li>[ ] Task 2</li>
+<li>[ ] Task 3</li>
+</ul>
+<h2 id="strikethrough">Strikethrough</h2>
+<p>~~This text is strikethrough~~</p>
+<h2 id="emoji">Emoji</h2>
+<p>:smile: :rocket: :tada:</p>
+<h2 id="links">Links</h2>
+<p><a href="https://github.com">GitHub</a></p>
+<h2 id="images_1">Images</h2>
+<p><img alt="Test Image" src="https://raw.githubusercontent.com/test-owner/test-repo/main/images/test.png" /><br />
+<img alt="External Image" src="https://example.com/image.png" /></p>
+<h2 id="blockquotes">Blockquotes</h2>
+<blockquote>
+<p>This is a blockquote</p>
+<p>With multiple lines</p>
+</blockquote>
+<h2 id="inline-code">Inline Code</h2>
+<p>This is <code>inline code</code> in a sentence.</p>
+<h2 id="syntax-highlighting">Syntax Highlighting</h2>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">greeting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">greeting</span><span class="p">);</span>
+</code></pre></div>
+
+<h2 id="footnotes">Footnotes</h2>
+<p>Here&rsquo;s a sentence with a footnote<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>This is the footnote content.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    
+    <a href="https://github.com/test-owner/test-repo" class="repo-button" target="_blank" rel="noopener noreferrer">
+        View on GitHub
+    </a>
+    <!-- Farcaster Frame SDK -->
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/frame-sdk'
+        
+        // Call ready when the page is loaded
+        async function rewriteLinks() {
+            const links = document.querySelectorAll("a[href^='http']");
+            for (let link of links) {
+                link.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    sdk.actions.openUrl(link.getAttribute("href"));
+                });
+            }
+        }
+        window.addEventListener('load', async () => {
+            try {
+                await sdk.actions.ready();
+                console.log('Frame is ready');
+                const ctx = await sdk.context;
+                ctx ? await rewriteLinks() : null;
+            } catch (e) {
+                console.error('Failed to initialize frame:', e);
+            }
+        });
+    </script>
+</body>
+</html> 

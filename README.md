@@ -90,3 +90,64 @@ npm test
 ## License
 
 MIT
+
+# Test GFM Features
+
+## Code Blocks
+```python
+def hello_world():
+    print("Hello, World!")
+```
+
+## Tables
+| Feature | Support |
+|---------|---------|
+| Tables  | ✅      |
+| Code    | ✅      |
+| Lists   | ✅      |
+
+## Lists
+- Item 1
+- Item 2
+  - Subitem 2.1
+  - Subitem 2.2
+
+1. Numbered item 1
+2. Numbered item 2
+
+## Task Lists
+- [x] Task 1
+- [ ] Task 2
+- [ ] Task 3
+
+## Strikethrough
+~~This text is strikethrough~~
+
+## Emoji
+:smile: :rocket: :tada:
+
+## Links
+[GitHub](https://github.com)
+
+## Images
+![Test Image](./images/test.png)
+![External Image](https://example.com/image.png)
+
+## Blockquotes
+> This is a blockquote
+> 
+> With multiple lines
+
+## Inline Code
+This is `inline code` in a sentence.
+
+## Syntax Highlighting
+```javascript
+const greeting = "Hello, World!";
+console.log(greeting);
+```
+
+## Footnotes
+Here's a sentence with a footnote[^1].
+
+[^1]: This is the footnote content.

@@ -1,135 +1,80 @@
-name: 'Farcaster-friendly Repo Page'
-description: 'Creates a Farcaster-friendly static page from your README.md with automatic frame support'
+name: 'GitHub Frame Generator'
+description: 'Generate a Farcaster frame from a GitHub repository'
 author: 'vrypan'
 
 branding:
   icon: 'book'
   color: 'blue'
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'README.md'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'README.md'
-  workflow_dispatch:
-
 inputs:
   token:
-    description: 'GitHub token for authentication'
+    description: 'GitHub token'
     required: false
-    default: '${{ github.token }}'
-  cname:
-    description: 'Custom domain for GitHub Pages'
+    default: ${{ github.token }}
+  domain:
+    description: 'The domain where the frame will be hosted'
     required: false
-  branch_name:
-    description: 'Branch name for GitHub Pages'
+    default: ''
+  branch:
+    description: 'The branch to use for the frame'
     required: false
     default: 'gh-frame'
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y curl git nodejs npm imagemagick
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
       shell: bash
-    
-    - name: Install Node.js dependencies
-      run: |
-        cd ${{ github.action_path }}
-        npm install
-        npm run build
+
+    - name: Generate frame
+      run: python main.py
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        DOMAIN: ${{ inputs.domain }}
+        BRANCH: ${{ inputs.branch }}
 
     - name: Configure Git
       run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
       shell: bash
 
-    - name: Create or switch to gh-frame branch
+    - name: Commit and push changes
       run: |
-        # Try to fetch the branch first
-        git fetch origin gh-frame || true
-        
-        # Check if branch exists locally or remotely
-        if git rev-parse --verify gh-frame >/dev/null 2>&1 || git rev-parse --verify origin/gh-frame >/dev/null 2>&1; then
-          # Branch exists, switch to it
-          git checkout gh-frame 2>/dev/null || git checkout -b gh-frame origin/gh-frame
+        # Check if branch exists
+        if ! git show-ref --verify --quiet refs/heads/${{ inputs.branch }}; then
+          # Create new branch from current HEAD
+          git checkout -b ${{ inputs.branch }}
         else
-          # Branch doesn't exist, create it
-          git checkout --orphan gh-frame
-          git reset --hard
-          git commit --allow-empty -m "Initializing gh-frame branch"
-          git push origin gh-frame
+          # Switch to existing branch
+          git checkout ${{ inputs.branch }}
         fi
-      shell: bash
 
-    - name: Fetch README.md from main branch
-      run: |
-        git fetch origin main:main
-        git show main:README.md > README.md
-      shell: bash
+        # Add generated files
+        git add index.html
 
-    - name: Get OG Image
-      run: |
-        chmod +x ${{ github.action_path }}/generate-images.sh
-        ${{ github.action_path }}/generate-images.sh
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-        CNAME: ${{ inputs.cname }}
-        BRANCH_NAME: ${{ inputs.branch_name }}
-
-    - name: Generate static page
-      run: |
-        node ${{ github.action_path }}/dist/index.js
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-        CNAME: ${{ inputs.cname }}
-        BRANCH_NAME: ${{ inputs.branch_name }}
-
-    - name: Commit generated files
-      run: |
-        # Only add files that exist
-        for file in og-image.png splash-image.png index.html styles.css; do
-          if [ -f "$file" ]; then
-            git add "$file"
-          fi
-        done
-        
-        # Add CNAME if it exists and is provided
-        if [ -n "$CNAME" ] && [ -f "CNAME" ]; then
-          git add CNAME
-        fi
-        
         # Only commit if there are changes
         if git diff --cached --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "Update static page and images"
-          git push origin gh-frame
+          git commit -m "Update static page"
+          git push origin ${{ inputs.branch }}
         fi
-      shell: bash
-      env:
-        CNAME: ${{ inputs.cname }}
-
-    - name: Push changes
-      run: |
-        git push origin gh-frame
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
