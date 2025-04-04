@@ -2,11 +2,8 @@
 
 import os
 import sys
-import subprocess
 from github import Github
-from pathlib import Path
 import logging
-from typing import Optional
 import markdown
 from jinja2 import Environment, FileSystemLoader
 import re
@@ -54,63 +51,65 @@ class GitHubFrameGenerator:
             raise
 
     def generate_html(self, content):
-        # Convert markdown to HTML using GitHub Flavored Markdown
-        html_content = markdown.markdown(content, extensions=[
-            'fenced_code',  # Code blocks with syntax highlighting
-            'codehilite',  # Syntax highlighting
-            'tables',      # Table support
-            'nl2br',       # Convert newlines to <br>
-            'sane_lists',  # Sane list handling
-            'toc',         # Table of contents
-            'footnotes',   # Footnote support
-            'attr_list',   # Attribute lists
-            'def_list',    # Definition lists
-            'abbr',        # Abbreviations
-            'admonition',  # Admonitions
-            'meta',        # Meta data
-            'sane_lists',  # Sane list handling
-            'smarty',      # Smart quotes and other typographic replacements
-            'wikilinks'    # Wiki-style links
-        ])
+            # Convert markdown to HTML using GitHub Flavored Markdown
+            html_content = markdown.markdown(content, extensions=[
+                'fenced_code',  # Code blocks with syntax highlighting
+                'codehilite',  # Syntax highlighting
+                'tables',      # Table support
+                'nl2br',       # Convert newlines to <br>
+                'sane_lists',  # Sane list handling
+                'toc',         # Table of contents
+                'footnotes',   # Footnote support
+                'attr_list',   # Attribute lists
+                'def_list',    # Definition lists
+                'abbr',        # Abbreviations
+                'admonition',  # Admonitions
+                'meta',        # Meta data
+                'sane_lists',  # Sane list handling
+                'smarty',      # Smart quotes and other typographic replacements
+                'wikilinks'    # Wiki-style links
+            ])
 
-        # Load and render template
-        env = Environment(loader=FileSystemLoader(self.template_path))
-        template = env.get_template('index.html')
+            # Load and render template
+            env = Environment(loader=FileSystemLoader(self.template_path))
+            template = env.get_template('index.html')
 
-        # Get repository name and owner from full repo name
-        owner, repo_name = self.repo_name.split('/') if '/' in self.repo_name else ('', '')
+            # Get repository name and owner from full repo name
+            owner, repo_name = ('', '')
+            if self.repo_name and '/' in self.repo_name:
+                owner, repo_name = self.repo_name.split('/')
 
-        # Determine site URL
-        site_url = f"https://{self.domain}" if self.domain else f"https://{owner}.github.io/{repo_name}"
+            # Determine site URL
+            site_url = f"https://{self.domain}" if self.domain else f"https://{owner}.github.io/{repo_name}"
 
-        # Get repository description from GitHub API if token is available
-        description = ""
-        if self.token:
-            try:
-                g = Github(self.token)
-                repo = g.get_repo(self.repo_name)
-                description = repo.description or f"GitHub repository page for {repo_name}"
-            except Exception as e:
-                logger.warning(f"Could not fetch repository description: {e}")
+            # Get repository description from GitHub API if token is available
+            description = ""
+            if self.token and self.repo_name:
+                try:
+                    g = Github(self.token)
+                    repo = g.get_repo(self.repo_name)
+                    description = repo.description or f"GitHub repository page for {repo_name}"
+                except Exception as e:
+                    logger.warning(f"Could not fetch repository description: {e}")
+                    description = f"GitHub repository page for {repo_name}"
+            else:
                 description = f"GitHub repository page for {repo_name}"
-        else:
-            description = f"GitHub repository page for {repo_name}"
 
-        # Prepare context
-        context = {
-            'content': html_content,
-            'repo_name': self.repo_name,
-            'domain': self.domain,
-            'branch': self.branch,
-            'site_url': site_url,
-            'title': repo_name.replace('-', ' ').title(),
-            'description': description,
-            'image_url': f"{site_url}/og-image.png",
-            'owner': owner,
-            'repo': repo_name
-        }
+            # Prepare context
+            context = {
+                'content': html_content,
+                'repo_name': self.repo_name,
+                'domain': self.domain,
+                'branch': self.branch,
+                'site_url': site_url,
+                'title': repo_name.replace('-', ' ').title(),
+                'description': description,
+                'image_url': f"{site_url}/og-image.png",
+                'owner': owner,
+                'repo': repo_name
+            }
 
-        return template.render(context)
+            return template.render(context)
 
     def save_html(self, html_content):
         with open(self.output_path, 'w', encoding='utf-8') as f:

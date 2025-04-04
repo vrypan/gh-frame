@@ -154,7 +154,7 @@ footer {
         margin: 0 0 1rem 0;
     }
 
-    .mobile-top .github-button {
+    .github-button {
         width: 90%;
         justify-content: center;
         border-radius: 6px;
@@ -166,4 +166,4 @@ footer {
     .mobile-top {
         display: none;
     }
-} 
+}
