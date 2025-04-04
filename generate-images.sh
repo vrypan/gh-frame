@@ -47,24 +47,3 @@ echo "Successfully converted og-image.png to 1200x800 with white padding"
 GITHUB_LOGO_URL="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
 curl -s "$GITHUB_LOGO_URL" > splash-image.png
 echo "Downloaded splash-image.png"
-
-# Generate OG image (1200x630)
-convert -size 1200x630 xc:white \
-  -gravity center \
-  -pointsize 48 \
-  -annotate +0+0 "GitHub Frame" \
-  -pointsize 24 \
-  -annotate +0+50 "A Farcaster-friendly static page" \
-  og-image.png
-
-# Generate splash image (200x200)
-convert -size 200x200 xc:white \
-  -gravity center \
-  -pointsize 32 \
-  -annotate +0+0 "GitHub\nFrame" \
-  splash-image.png
-
-# Create CNAME file if domain is provided
-if [ -n "$CNAME" ]; then
-  echo "$CNAME" > CNAME
-fi
