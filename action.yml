@@ -6,6 +6,19 @@ branding:
   icon: 'book'
   color: 'blue'
 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+
 inputs:
   token:
     description: 'GitHub token for authentication'
