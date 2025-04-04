@@ -87,9 +87,17 @@ runs:
     - name: Get OG Image
       run: |
         cd ${{ github.workspace }}
-        cp .github/actions/generate-images.sh ./
+        echo "Current directory: $(pwd)"
+        echo "Directory contents:"
+        ls -la
         chmod +x generate-images.sh
-        ./generate-images.sh
+        ./generate-images.sh || {
+          echo "Script execution failed"
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          exit 1
+        }
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
