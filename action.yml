@@ -101,11 +101,11 @@ runs:
         export DOMAIN=${{ inputs.cname }}
         export BRANCH=${{ inputs.branch_name }}
         export GITHUB_TOKEN=${{ inputs.token }}
-        cd ${{ github.action_path }}
-        python3 main.py
+        cd ${{ github.workspace }}
+        python3 ${{ github.workspace }}/main.py
         # Move generated files to the repository root
-        mv index.html ${{ github.workspace }}/ 2>/dev/null || true
-        mv styles.css ${{ github.workspace }}/ 2>/dev/null || true
+        # mv index.html ${{ github.workspace }}/ 2>/dev/null || true
+        # mv styles.css ${{ github.workspace }}/ 2>/dev/null || true
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
@@ -115,14 +115,12 @@ runs:
     - name: Commit generated files
       run: |
         cd ${{ github.workspace }}
-        # Ensure we're on the correct branch
-        git checkout gh-frame
 
         # Configure Git with the token
         git config --global url."https://x-access-token:$GITHUB_TOKEN@github.com/".insteadOf "https://github.com/"
 
         # Only add files that exist
-        for file in og-image.png splash-image.png index.html styles.css; do
+        for file in og-image.png splash-image.png index.html styles.css README.md; do
           if [ -f "$file" ]; then
             git add "$file"
           fi
