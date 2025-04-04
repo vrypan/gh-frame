@@ -57,25 +57,20 @@
 <ol>
 <li>Create a new workflow file in your repository at <code>.github/workflows/gh-frame.yml</code>:</li>
 </ol>
-<pre><code class="language-yaml">name: Generate Static Page
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
+<pre><code class="language-yaml">name: Build Farcaster Page
+on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: vrypan/gh-frame@v1.1.0
+      - uses: vrypan/gh-frame@v1.1.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Optional: Custom domain for GitHub Pages
-          cname: your-domain.com
-          # Optional: Branch name for GitHub Pages (default: gh-frame)
-          branch_name: gh-frame
 </code></pre>
 <ol start="2">
 <li>Go to your repository&#39;s Settings &gt; Pages and:<ul>
