@@ -27,8 +27,11 @@ fi
 echo "Found og:image URL: $OG_IMAGE_URL"
 
 # Download the OG image
-curl -s "$OG_IMAGE_URL" > og-image.png
-echo "Downloaded og-image.png"
+curl -s "$OG_IMAGE_URL" > og-image.orig.png
+echo "Downloaded og-image.orig.png"
+
+magick og-image.orig.png -background white -gravity center -extent 1200x800 og-image.png
+echo "Generated 1200x800 og-image.png"
 
 # Download GitHub logo for splash image
 GITHUB_LOGO_URL="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
