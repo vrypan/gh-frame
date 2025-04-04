@@ -107,7 +107,8 @@ runs:
         if git diff --cached --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "Update static page with generated images"
+          git commit -m "Update static page and images"
+          git push origin gh-frame
         fi
       shell: bash
       env:
