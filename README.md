@@ -17,20 +17,29 @@ A GitHub Action that creates a Farcaster-friendly static page from your README.m
 1. Create a new workflow file in your repository at `.github/workflows/gh-frame.yml`:
 
 ```yaml
-name: Build Farcaster Page
-on: [push, workflow_dispatch]
+name: Deploy Farcaster-friendly Repo Page
+on:
+  push:
+    branches:
+      - main  # or 'master' or whatever your main branch is
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pages: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: vrypan/gh-frame@v1.1.10
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Generate Farcaster-friendly Page
+        uses: vrypan/gh-frame@v2.0.0-pre14
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}  # Default GitHub token
+          style: light  # or dark/custom
+          # Optionally set cname or branch_name if you want:
+          # cname: yourdomain.com
+          # branch_name: gh-pages
 ```
 
 2. Go to your repository's Settings > Pages and:
@@ -135,7 +144,7 @@ def hello_world():
 
 ## Blockquotes
 > This is a blockquote
-> 
+>
 > With multiple lines
 
 ## Inline Code

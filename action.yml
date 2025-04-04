@@ -109,12 +109,12 @@ runs:
         export GITHUB_TOKEN=${{ inputs.token }}
         cd ${{ github.workspace }}
         python3 ${{ github.action_path }}/main.py ./README.md ${{ github.action_path }}/templates
-        if [ "${{ inputs.branch_name }}" == "dark" ]; then
+        if [ "${{ inputs.style }}" == "dark" ]; then
           css_file=styles-dark.css
         else
           css_file=styles-light.css
         fi
-        if [ "${{ inputs.branch_name }}" != "custom" ]; then
+        if [ "${{ inputs.style }}" != "custom" ]; then
           cp ${{ github.action_path }}/templates/${css_file} ./style.css
         fi
       shell: bash
