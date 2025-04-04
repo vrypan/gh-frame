@@ -111,11 +111,11 @@ runs:
         python3 ${{ github.action_path }}/main.py ./README.md ${{ github.action_path }}/templates
         if [ "${{ inputs.style }}" == "dark" ]; then
           echo "Using dark theme"
-          cp ${{ github.action_path }}/templates/styles-dark.css ./style.css
+          cp ${{ github.action_path }}/templates/styles-dark.css ./styles.css
         fi
         if [ "${{ inputs.style }}" == "light" ]; then
           echo "Using light theme"
-          cp ${{ github.action_path }}/templates/styles-light.css ./style.css
+          cp ${{ github.action_path }}/templates/styles-light.css ./styles.css
         fi
       shell: bash
       env:
