@@ -1,93 +1,145 @@
-name: 'GitHub Frame Generator'
-description: 'Generate a Farcaster frame from a GitHub repository'
+name: 'Farcaster-friendly Repo Page'
+description: 'Creates a Farcaster-friendly static page from your README.md with automatic frame support'
 author: 'vrypan'
 
 branding:
   icon: 'book'
   color: 'blue'
 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+
 inputs:
   token:
-    description: 'GitHub token'
+    description: 'GitHub token for authentication'
     required: false
-    default: ${{ github.token }}
-  domain:
-    description: 'The domain where the frame will be hosted'
+    default: '${{ github.token }}'
+  cname:
+    description: 'Custom domain for GitHub Pages'
     required: false
-    default: ''
-  branch:
-    description: 'The branch to use for the frame'
+  branch_name:
+    description: 'Branch name for GitHub Pages'
     required: false
     default: 'gh-frame'
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-    # First checkout the action repository
-    - name: Checkout action repository
-      uses: actions/checkout@v4
-      with:
-        repository: vrypan/gh-frame
-        path: action
-        fetch-depth: 0
-
-    # Then checkout the target repository
-    - name: Checkout target repository
-      uses: actions/checkout@v4
-      with:
-        path: target
-        fetch-depth: 0
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
     - name: Install dependencies
-      working-directory: ${{ github.workspace }}/action
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        sudo apt-get update
+        sudo apt-get install -y curl git python3.11 python3.11-pip imagemagick
       shell: bash
-
-    - name: Generate frame
-      working-directory: ${{ github.workspace }}/action
-      run: python main.py
+    
+    - name: Install Python dependencies
+      run: |
+        cd ${{ github.action_path }}
+        python3.11 -m pip install -r requirements.txt
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        DOMAIN: ${{ inputs.domain }}
-        BRANCH: ${{ inputs.branch }}
 
     - name: Configure Git
       run: |
-        git config --global user.name "GitHub Action"
-        git config --global user.email "action@github.com"
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
       shell: bash
 
-    - name: Commit and push changes
-      working-directory: ${{ github.workspace }}/target
+    - name: Create or switch to gh-frame branch
       run: |
-        # Check if branch exists
-        if ! git show-ref --verify --quiet refs/heads/${{ inputs.branch }}; then
-          # Create new branch from current HEAD
-          git checkout -b ${{ inputs.branch }}
+        # Try to fetch the branch first
+        git fetch origin gh-frame || true
+        
+        # Check if branch exists locally or remotely
+        if git rev-parse --verify gh-frame >/dev/null 2>&1 || git rev-parse --verify origin/gh-frame >/dev/null 2>&1; then
+          # Branch exists, switch to it
+          git checkout gh-frame 2>/dev/null || git checkout -b gh-frame origin/gh-frame
         else
-          # Switch to existing branch
-          git checkout ${{ inputs.branch }}
+          # Branch doesn't exist, create it
+          git checkout --orphan gh-frame
+          git reset --hard
+          git commit --allow-empty -m "Initializing gh-frame branch"
+          git push origin gh-frame
         fi
+      shell: bash
 
-        # Add generated files
-        git add index.html
+    - name: Fetch README.md from main branch
+      run: |
+        git fetch origin main:main
+        git show main:README.md > README.md
+      shell: bash
 
+    - name: Get OG Image
+      run: |
+        chmod +x ${{ github.action_path }}/generate-images.sh
+        ${{ github.action_path }}/generate-images.sh
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        CNAME: ${{ inputs.cname }}
+        BRANCH_NAME: ${{ inputs.branch_name }}
+
+    - name: Generate static page
+      run: |
+        # Set up environment variables for the Python script
+        export GITHUB_REPOSITORY=${{ github.repository }}
+        export DOMAIN=${{ inputs.cname }}
+        export BRANCH=${{ inputs.branch_name }}
+        export GITHUB_TOKEN=${{ inputs.token }}
+        cd ${{ github.action_path }}
+        python3.11 main.py
+        # Move generated files to the repository root
+        mv index.html ${{ github.workspace }}/
+        mv styles.css ${{ github.workspace }}/ 2>/dev/null || true
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        CNAME: ${{ inputs.cname }}
+        BRANCH_NAME: ${{ inputs.branch_name }}
+
+    - name: Commit generated files
+      run: |
+        cd ${{ github.workspace }}
+        # Only add files that exist
+        for file in og-image.png splash-image.png index.html styles.css; do
+          if [ -f "$file" ]; then
+            git add "$file"
+          fi
+        done
+        
+        # Add CNAME if it exists and is provided
+        if [ -n "$CNAME" ] && [ -f "CNAME" ]; then
+          git add CNAME
+        fi
+        
         # Only commit if there are changes
         if git diff --cached --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "Update static page"
-          git push origin ${{ inputs.branch }}
+          git commit -m "Update static page and images"
+          git push origin gh-frame
         fi
+      shell: bash
+      env:
+        CNAME: ${{ inputs.cname }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Push changes
+      run: |
+        git push origin gh-frame
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
