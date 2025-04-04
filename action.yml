@@ -60,6 +60,7 @@ runs:
 
     - name: Create or switch to gh-frame branch
       run: |
+        cd ${{ github.workspace }}
         # Try to fetch the branch first
         git fetch origin gh-frame || true
         
@@ -78,12 +79,14 @@ runs:
 
     - name: Fetch README.md from main branch
       run: |
+        cd ${{ github.workspace }}
         git fetch origin main:main
         git show main:README.md > README.md
       shell: bash
 
     - name: Get OG Image
       run: |
+        cd ${{ github.workspace }}
         chmod +x ${{ github.action_path }}/generate-images.sh
         ${{ github.action_path }}/generate-images.sh
       shell: bash
@@ -113,6 +116,9 @@ runs:
     - name: Commit generated files
       run: |
         cd ${{ github.workspace }}
+        # Ensure we're on the correct branch
+        git checkout gh-frame
+        
         # Configure Git with the token
         git config --global url."https://x-access-token:$GITHUB_TOKEN@github.com/".insteadOf "https://github.com/"
         
