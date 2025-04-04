@@ -73,6 +73,7 @@ The page uses a clean, modern design with:
 - GitHub-like styling
 - Custom fonts and colors
 
+
 ## Development
 
 ```bash
