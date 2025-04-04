@@ -23,13 +23,13 @@ class GitHubFrameGenerator:
         self.repo_name = os.getenv('GITHUB_REPOSITORY')
         self.domain = os.getenv('DOMAIN', '')
         self.branch = os.getenv('BRANCH', 'gh-frame')
-        
+
         # Set up paths relative to the current directory
         self.current_dir = os.getcwd()
-        self.readme_path = os.path.join(self.current_dir, 'README.md')
-        self.template_path = os.path.join(self.current_dir, 'templates')
+        # self.readme_path = os.path.join(self.current_dir, 'README.md')
+        # self.template_path = os.path.join(self.current_dir, 'templates')
         self.output_path = os.path.join(self.current_dir, 'index.html')
-        
+
         # Set up raw base URL for images
         if self.domain:
             self.raw_base_url = f'https://{self.domain}/raw/{self.branch}'
@@ -59,11 +59,11 @@ class GitHubFrameGenerator:
     def generate_html(self, content):
         # Convert markdown to HTML
         html_content = markdown.markdown(content, extensions=['fenced_code', 'codehilite'])
-        
+
         # Load and render template
         env = Environment(loader=FileSystemLoader(self.template_path))
         template = env.get_template('index.html')
-        
+
         # Prepare context
         context = {
             'content': html_content,
@@ -71,7 +71,7 @@ class GitHubFrameGenerator:
             'domain': self.domain,
             'branch': self.branch
         }
-        
+
         return template.render(context)
 
     def save_html(self, html_content):
@@ -89,5 +89,14 @@ class GitHubFrameGenerator:
             raise
 
 if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print("Usage: script.py <readme_path> <template_dir>")
+        sys.exit(1)
+
+    readme_path = sys.argv[1]
+    template_dir = sys.argv[2]
+
     generator = GitHubFrameGenerator()
-    generator.run() 
+    generator.readme_path = readme_path
+    generator.template_path = template_dir
+    generator.run()
