@@ -102,7 +102,7 @@ runs:
         export BRANCH=${{ inputs.branch_name }}
         export GITHUB_TOKEN=${{ inputs.token }}
         cd ${{ github.workspace }}
-        python3 ${{ github.workspace }}/main.py
+        python3 ${{ github.action_path }}/main.py
         # Move generated files to the repository root
         # mv index.html ${{ github.workspace }}/ 2>/dev/null || true
         # mv styles.css ${{ github.workspace }}/ 2>/dev/null || true
