@@ -47,6 +47,14 @@
 <span class="w">  </span><span class="nt">push</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span><span class="w">  </span><span class="c1"># or &#39;master&#39; or whatever your main branch is</span>
+<span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;README.md&quot;</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;README.md&quot;</span>
+<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
 <span class="nt">jobs</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
@@ -54,18 +62,6 @@
 <span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
 <span class="w">      </span><span class="nt">pages</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
 <span class="w">      </span><span class="nt">id-token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
-<span class="w">    </span><span class="nt">on</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">push</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">branches</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
-<span class="w">        </span><span class="nt">paths</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;README.md&quot;</span>
-<span class="w">      </span><span class="nt">pull_request</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">branches</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
-<span class="w">        </span><span class="nt">paths</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;README.md&quot;</span>
-<span class="w">      </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Checkout repository</span>
 <span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
@@ -73,7 +69,7 @@
 <span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vrypan/gh-frame@v2.0.1</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span><span class="w">  </span><span class="c1"># Default GitHub token</span>
-<span class="w">          </span><span class="nt">style</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">light</span><span class="w">  </span><span class="c1">#  light/dark/custom</span>
+<span class="w">          </span><span class="nt">style</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">light</span><span class="w">  </span><span class="c1"># light/dark/custom</span>
 <span class="w">          </span><span class="c1"># Optionally set cname or branch_name if you want:</span>
 <span class="w">          </span><span class="c1"># cname: yourdomain.com</span>
 <span class="w">          </span><span class="c1"># branch_name: gh-frame</span>
