@@ -134,7 +134,7 @@ runs:
         git config --global url."https://x-access-token:$GITHUB_TOKEN@github.com/".insteadOf "https://github.com/"
 
         # Only add files that exist
-        for file in og-image.png splash-image.png index.html styles.css README.md; do
+        for file in og-image.png splash-image.png index.html styles.css README.md CNAME; do
           if [ -f "$file" ]; then
             git add "$file"
           fi
