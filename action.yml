@@ -117,6 +117,9 @@ runs:
           echo "Using light theme"
           cp ${{ github.action_path }}/templates/styles-light.css ./styles.css
         fi
+        if [ -n "$DOMAIN" ]; then
+          echo $DOMAIN > CNAME
+        fi
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
